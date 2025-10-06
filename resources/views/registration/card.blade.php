@@ -156,6 +156,23 @@
                                             Kanwil Kementrian Hukum DIY
                                         </h4>
                                     </div>
+                                      {{-- === BLOK STATUS REAL-TIME (BARU) === --}}
+                                <small>---------------------------------------------------</small>
+                                <div class="mt-2 mb-2 p-2" align="center" id="estimasi-alert" style="background-color: #f8f9fa;">
+                                    <h6 class="fw-bold mb-1">Status Anda: <span id="status-saat-ini" class="text-info">Memuat...</span></h6>
+                                    
+                                    <p class="mb-1 fw-semibold">
+                                        Antrean Aktif Loket: <strong id="antrian-dipanggil" class="text-primary">---</strong>
+                                    </p>
+
+                                    <h6 class="fw-semibold text-danger">
+                                        Posisi Di Depan: <strong id="posisi-di-depan">Memuat...</strong>
+                                    </h6>
+                                    
+                                    <h4 class="fw-bold mt-2 text-dark">Estimasi Dilayani: <span id="estimasi-waktu-display">Memuat...</span></h4>
+                                </div>
+                                <small>---------------------------------------------------</small>
+                                {{-- === AKHIR BLOK STATUS REAL-TIME === --}}
                                     <section class="sheet padding-5mm" id="html-content-holder" style="color:black;">
 
                                         <div align="center"
@@ -273,82 +290,73 @@
     <script src="{{ asset('templates/sash/') }}/js/sweet-alert.js"></script>
     <!-- <script src="js/html2canvas.js"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
-    <!-- <script>
-        function redirect() {
-            window.setTimeout(function() {
-                'use strict';
-                console.log('window.top.location', window.top.location);
-                console.log('window.location', window.location);
+ <script>
+        // KUNCI: ID Antrean Anda untuk dikirim ke API
+        const ID_BUKU_SAYA = "2649"; 
+        const API_STATUS_PRIBADI = "{{ route('api.public.personal_status') }}";
 
-                if (window.location !== window.top.location) {
-                    window.top.location = "<?php echo $url; ?>";
+        function updatePersonalStatus() {
+            $.ajax({
+                url: API_STATUS_PRIBADI,
+                method: 'GET',
+                dataType: 'json',
+                data: { id_buku: ID_BUKU_SAYA },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        $('#status-saat-ini').text(response.status_saat_ini); 
+                        $('#antrian-dipanggil').text(response.antrian_dipanggil || '---');
+                        
+                        const $alertDiv = $('#estimasi-alert');
+                        
+                        if (response.status_saat_ini === 'MENUNGGU') {
+                            $('#estimasi-waktu-display').text(`± ${response.estimasi_menit} Menit (${response.waktu_dilayani} WIB)`);
+                            $('#posisi-di-depan').text(response.posisi_di_depan + ' Orang Lagi');
+
+                            // Ganti warna saat antrean mendekat (opsional)
+                            if (response.posisi_di_depan <= 3) {
+                                $alertDiv.css('background-color', '#fff3cd'); // Warning/Kuning
+                            } else {
+                                $alertDiv.css('background-color', '#f8f9fa'); // Normal
+                            }
+
+                        } else if (response.status_saat_ini === 'DIPANGGIL') {
+                            $('#estimasi-waktu-display').html('<strong>ANDA SEDANG DIPANGGIL SEKARANG!</strong>');
+                            $('#posisi-di-depan').text('0 Orang');
+                            $alertDiv.css('background-color', '#d4edda'); // Success/Hijau
+                            clearInterval(pollingInterval); 
+                        } else if (response.status_saat_ini === 'SELESAI') {
+                            $('#estimasi-waktu-display').text('LAYANAN ANDA SUDAH SELESAI. Terima kasih.');
+                            $alertDiv.css('background-color', '#d1ecf1'); // Info/Biru
+                            clearInterval(pollingInterval);
+                        }
+                    }
+                },
+                error: function() {
+                    console.error("Gagal koneksi API status pribadi.");
                 }
-            }, 5000);
-        };
-
-        function printDiv(divName) {
-            var printContents = document.getElementById(divName).innerHTML;
-            var originalContents = document.body.innerHTML;
-
-            document.body.innerHTML = printContents;
-            window.print();
-            document.body.innerHTML = originalContents;
+            });
         }
 
-        $(document).ready(function() {
-            if (window.location !== window.parent.location) {
-                redirect();
-            }
-
-            var element = $("#html-content-holder");
-
-            $("#btn-Preview-Image").on('click', function() {
-                html2canvas(element, {
-                    dpi: 600,
-                    allowTaint: true,
-                    onrendered: function(canvas) {
-                        // Dapatkan data gambar
-                        var imgageData = canvas.toDataURL("image/png");
-
-                        // Ubah menjadi aliran data untuk diunduh
-                        var newData = imgageData.replace(/^data:image\/png/,
-                            "data:application/octet-stream");
-
-                        // Buat elemen <a> sementara untuk memicu unduhan
-                        var downloadLink = document.createElement('a');
-                        downloadLink.href = newData;
-                        downloadLink.download = "KARTU PENGUNJUNG -<?php echo $data['nama']; ?>.png";
-
-                        // Simulasikan klik pada elemen <a>
-                        document.body.appendChild(downloadLink);
-                        downloadLink.click();
-                        document.body.removeChild(
-                            downloadLink); // Bersihkan elemen setelah diunduh
-                    }
-                });
+        function downloadImage(fileName) {
+            const element = document.getElementById("html-content-holder");
+            html2canvas(element, {
+                scale: 2,
+                useCORS: true // Penting karena ada gambar dari asset()
+            }).then(canvas => {
+                const image = canvas.toDataURL("image/png");
+                const link = document.createElement("a");
+                link.href = image;
+                link.download = fileName;
+                link.click();
             });
+        }
 
-            // $("#btn-Preview-Image").on('click', function() {
-            //   domtoimage.toPng(element[0], {
-            //       quality: 1, // Kualitas PNG (1 = terbaik)
-            //       width: element.width() * 2, // Opsional: tingkatkan resolusi output
-            //       height: element.height() * 2 // Opsional: tingkatkan resolusi output
-            //     })
-            //     .then(function(dataUrl) {
-            //       var downloadLink = document.createElement('a');
-            //       downloadLink.href = dataUrl;
-            //       downloadLink.download = "KARTU PENGUNJUNG -<?php echo $data['nama']; ?>.png";
-            //       document.body.appendChild(downloadLink);
-            //       downloadLink.click();
-            //       document.body.removeChild(downloadLink);
-            //     })
-            //     .catch(function(error) {
-            //       console.error('oops, something went wrong!', error);
-            //     });
-            // });
+        // Jalankan pertama kali saat load dan mulai polling
+        $(document).ready(function() {
+            updatePersonalStatus(); 
+            const pollingInterval = setInterval(updatePersonalStatus, 10000); // Polling setiap 10 detik
         });
-    </script> -->
-    <script></script>
+    </script>
     <script>
         function redirect() {
             window.setTimeout(function() {

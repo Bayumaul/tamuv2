@@ -211,9 +211,15 @@
                                         <div class="dropdown-divider my-1 mx-n2"></div>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="javascript:void(0);">
-                                            <i class="icon-base ti tabler-power icon-md me-3"></i><span>Log Out</span>
-                                        </a>
+                                        <a class="dropdown-item" href="{{ route('logout') }}"
+                                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i
+                                                class="icon-base ti tabler-power icon-md me-3"></i><span>Log
+                                                Out</span></a>
+
+                                        <form id="logout-form" action="{{ route('logout') }}" method="POST"
+                                            style="display: none;">
+                                            @csrf
+                                        </form>
                                     </li>
                                 </ul>
                             </li>

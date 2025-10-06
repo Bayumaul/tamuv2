@@ -72,6 +72,7 @@ Route::prefix('api/display')->group(function () {
 });
 
 // API Status Loket (Digunakan oleh Monitor Display untuk status Loket 1-4)
-// Route::get('/api/public/loket-status', [ApiController::class, 'getLoketStatus'])->name('api.public.loket_status');
 Route::get('/api/public/loket-status', [ApiController::class, 'getLoketStatus'])->name('api.public.loket_status');
 Route::get('/api/public/last-active-call', [ApiController::class, 'getLastActiveCall'])->name('api.public.last_active_call');
+Route::get('/api/public/personal-status', [ApiController::class, 'getPersonalStatus'])->name('api.public.personal_status');
+// Route::get('/personal-status', [ApiController::class, 'getPersonalStatus'])->name('api.public.personal_status');

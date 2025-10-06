@@ -394,8 +394,6 @@ class PendaftaranController extends Controller
         $layanan = match ($kode) {
             'KI' => 'Layanan Kekayaan Intelektual',
             'AHU' => 'Layanan Administrasi Hukum Umum',
-            'IMI' => 'Layanan Keimigrasian',
-            'PAS' => 'Layanan Pemasyarakatan',
             'FPHD' => 'Layanan Fasilitasi Produk Hukum Daerah',
             'JDIH' => 'Layanan JDIH',
             'HKM' => 'Layanan Bantuan Hukum',
@@ -406,7 +404,6 @@ class PendaftaranController extends Controller
         $url = 'kemenkumjogja.id';
 
         $no_antrian = str_pad($data->antrian, 3, '0', STR_PAD_LEFT);
-        // $qrCode = base64_encode(QrCode::format('png')->size(200)->generate($data->id_buku));
         // folder simpan hasil QR
         $tempDir = public_path('img/qrcode/');
         if (!file_exists($tempDir)) {
@@ -424,7 +421,6 @@ class PendaftaranController extends Controller
 
         // kirim path ke view
         $qrPath = asset('img/qrcode/' . $filename);
-        // return [$data, $layanan, $url, $no_antrian];
         $tgl = DATE("Y-m-d");
         return view('registration.card', compact('data', 'layanan', 'url', 'no_antrian', 'tgl', 'qrPath'));
     }

@@ -10,7 +10,51 @@ use Carbon\Carbon;
 class ApiController extends Controller
 {
     // ... (metode getPersonalStatus jika Anda menempatkannya di sini)
+    public function getPersonalStatus(Request $request)
+    {
+        $idBuku = $request->input('id_buku');
+        $DURASI_STANDAR = 15;
 
+        // Cari data antrean pengguna hari ini
+        $entry = DataBukuTamu::where('id_buku', $idBuku)
+            ->whereDate('tanggal', Carbon::today())
+            ->first();
+
+        if (!$entry) {
+            return response()->json(['status' => 'error', 'message' => 'Antrean tidak ditemukan atau sudah kadaluarsa.']);
+        }
+
+        $statusSaatIni = $entry->status_antrean;
+        $antrianSaya = $entry->antrian;
+
+        // Cari nomor antrean terakhir yang SELESAI atau DIPANGGIL di Layanan yang SAMA
+        $lastCalled = DataBukuTamu::where('id_layanan', $entry->id_layanan)
+            ->where('tanggal', Carbon::today())
+            ->whereIn('status_antrean', ['DIPANGGIL', 'SELESAI'])
+            ->max('antrian');
+
+        $antrianDipanggil = $lastCalled ?? 0;
+
+        $posisiDiDepan = 0;
+        $estimasiMenit = 0;
+        $waktuDilayani = 'MEMUAT';
+
+        if ($statusSaatIni === 'MENUNGGU') {
+            // Hitung posisi: (Nomor Saya) - (Nomor Terakhir yang Diproses) - 1 (Petugas sedang melayani nomor itu)
+            $posisiDiDepan = max(0, $antrianSaya - $antrianDipanggil - 1);
+            $estimasiMenit = $posisiDiDepan * $DURASI_STANDAR;
+            $waktuDilayani = Carbon::now()->addMinutes($estimasiMenit)->format('H:i');
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'antrian_dipanggil' => $antrianDipanggil,
+            'posisi_di_depan' => $posisiDiDepan,
+            'estimasi_menit' => $estimasiMenit,
+            'waktu_dilayani' => $waktuDilayani,
+            'status_saat_ini' => $statusSaatIni,
+        ]);
+    }
     /**
      * API: Mengambil nomor antrean yang sedang DIPANGGIL di setiap loket (1-4).
      */
