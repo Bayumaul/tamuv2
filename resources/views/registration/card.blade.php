@@ -157,21 +157,38 @@
                                         </h4>
                                     </div>
                                       {{-- === BLOK STATUS REAL-TIME (BARU) === --}}
-                                <small>---------------------------------------------------</small>
-                                <div class="mt-2 mb-2 p-2" align="center" id="estimasi-alert" style="background-color: #f8f9fa;">
-                                    <h6 class="fw-bold mb-1">Status Anda: <span id="status-saat-ini" class="text-info">Memuat...</span></h6>
-                                    
-                                    <p class="mb-1 fw-semibold">
-                                        Antrean Aktif Loket: <strong id="antrian-dipanggil" class="text-primary">---</strong>
-                                    </p>
+                              <!-- Card Status Antrian -->
+<div class="card shadow-sm border-0 rounded-4 mt-3 mb-3">
+    <div class="card-body text-center p-4" style="background: linear-gradient(180deg, #f8fafc, #ffffff);">
 
-                                    <h6 class="fw-semibold text-danger">
-                                        Posisi Di Depan: <strong id="posisi-di-depan">Memuat...</strong>
-                                    </h6>
-                                    
-                                    <h4 class="fw-bold mt-2 text-dark">Estimasi Dilayani: <span id="estimasi-waktu-display">Memuat...</span></h4>
-                                </div>
-                                <small>---------------------------------------------------</small>
+        <h6 class="fw-bold text-secondary mb-3">
+            <i class="bi bi-info-circle-fill text-primary me-1"></i> Status Anda
+        </h6>
+        <h4 class="fw-bold mb-4 text-primary" id="status-saat-ini">Memuat...</h4>
+
+        <div class="border-top border-bottom py-3 my-3">
+            <p class="mb-1 text-muted fw-semibold">
+                <i class="bi bi-person-check-fill text-success me-1"></i> Antrean Aktif Loket:
+            </p>
+            <h5 class="fw-bold text-dark" id="antrian-dipanggil">---</h5>
+        </div>
+
+        <div class="mb-3">
+            <h6 class="fw-semibold text-danger mb-1">
+                <i class="bi bi-exclamation-circle-fill me-1"></i> Posisi di Depan
+            </h6>
+            <h4 class="fw-bold text-dark" id="posisi-di-depan">Memuat...</h4>
+        </div>
+
+        <div class="bg-light p-3 rounded-3 shadow-sm mt-4">
+            <h6 class="fw-semibold text-secondary mb-1">
+                <i class="bi bi-clock-history text-warning me-1"></i> Estimasi Dilayani
+            </h6>
+            <h4 class="fw-bold text-dark mb-0" id="estimasi-waktu-display">Memuat...</h4>
+        </div>
+    </div>
+</div>
+
                                 {{-- === AKHIR BLOK STATUS REAL-TIME === --}}
                                     <section class="sheet padding-5mm" id="html-content-holder" style="color:black;">
 
@@ -292,7 +309,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
  <script>
         // KUNCI: ID Antrean Anda untuk dikirim ke API
-        const ID_BUKU_SAYA = "2649"; 
+        const ID_BUKU_SAYA = "{{ $data->id_buku }}"; 
         const API_STATUS_PRIBADI = "{{ route('api.public.personal_status') }}";
 
         function updatePersonalStatus() {

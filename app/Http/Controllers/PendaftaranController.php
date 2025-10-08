@@ -421,7 +421,7 @@ class PendaftaranController extends Controller
 
         // kirim path ke view
         $qrPath = asset('img/qrcode/' . $filename);
-        $tgl = DATE("Y-m-d");
+        $tgl = $data->created_at->isoFormat('D MMMM YYYY, HH:mm') . ' WIB';
         return view('registration.card', compact('data', 'layanan', 'url', 'no_antrian', 'tgl', 'qrPath'));
     }
 }

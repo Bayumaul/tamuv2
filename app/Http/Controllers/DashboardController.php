@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use App\Models\DataBukuTamu;
 use App\Models\DisplayQueue;
 use Illuminate\Http\Request;
+use App\Models\LayananDetail;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -18,7 +19,7 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        //
+        return view('dashboard.index');
     }
 
     /**
@@ -253,5 +254,177 @@ class DashboardController extends Controller
         // Implementasikan lookup dari database Master Loket Anda (jika ada)
         $map = [1 => 'Admin Hukum', 2 => 'Pendaftaran Merek', 3 => 'Paten/Cipta', 4 => 'Umum/Info'];
         return $map[$id] ?? 'Loket Tidak Dikenal';
+    }
+
+    public function getDailyStats(Request $request)
+    {
+        $today = Carbon::today()->toDateString();
+
+        // 1. Total Kunjungan Hari Ini
+        $totalKunjungan = DataBukuTamu::whereDate('tanggal', $today)->count();
+
+        // 2. Antrean Aktif (DIPANGGIL) dan Menunggu
+        $antreanAktif = DataBukuTamu::whereDate('tanggal', $today)
+            ->where('status_antrean', 'DIPANGGIL')
+            ->count();
+
+        $antreanMenunggu = DataBukuTamu::whereDate('tanggal', $today)
+            ->where('status_antrean', 'MENUNGGU')
+            ->count();
+
+        // 3. Waktu Layanan Rata-rata (Hanya dari yang sudah SELESAI)
+        $finishedEntries = DataBukuTamu::whereDate('tanggal', $today)
+            ->where('status_antrean', 'SELESAI')
+            // ->whereNotNull('waktu_panggil')
+            ->get();
+
+        $avgServiceTime = 0;
+        if ($finishedEntries->count() > 0) {
+            $totalDuration = 0;
+            foreach ($finishedEntries as $entry) {
+                // Pastikan updated_at dan waktu_panggil ada
+                if ($entry->updated_at && $entry->waktu_panggil) {
+                    $start = Carbon::parse($entry->waktu_panggil);
+                    $end = Carbon::parse($entry->updated_at); // Waktu diupdate saat SELESAI
+                    $totalDuration += $end->diffInMinutes($start);
+                }
+            }
+            // Rata-rata dibulatkan ke 1 desimal
+            $avgServiceTime = round($totalDuration / $finishedEntries->count(), 1);
+        }
+
+        // 4. Tingkat Kehadiran (Selesai + Dipanggil) / Total
+        $totalProses = $finishedEntries->count() + $antreanAktif;
+        $tingkatKehadiran = ($totalKunjungan > 0)
+            ? round(($totalProses / $totalKunjungan) * 100, 1)
+            : 0;
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'total_kunjungan' => $totalKunjungan,
+                'antrean_aktif' => $antreanAktif,
+                'antrean_menunggu' => $antreanMenunggu,
+                'avg_service_time' => $avgServiceTime,
+                'tingkat_kehadiran' => $tingkatKehadiran,
+            ]
+        ]);
+    }
+
+
+    /**
+     * API: Menghitung tren kunjungan mingguan (Grafik Line/Bar).
+     * Route: api.admin.stats.weekly_trend
+     */
+    public function getWeeklyTrend(Request $request)
+    {
+        $startDate = Carbon::today()->subDays(6)->toDateString(); // 7 hari terakhir
+        $endDate = Carbon::today()->toDateString();
+
+        $entries = DataBukuTamu::select(
+            DB::raw('DATE(tanggal) as date'),
+            DB::raw('COUNT(*) as count')
+        )
+            ->whereBetween('tanggal', [$startDate, $endDate])
+            ->groupBy('date')
+            ->orderBy('date', 'asc')
+            ->get();
+
+        $dates = [];
+        $counts = [];
+
+        // Inisiasi 7 hari dengan count 0
+        for ($i = 0; $i < 7; $i++) {
+            $date = Carbon::today()->subDays(6)->addDays($i);
+            $dates[$date->toDateString()] = 0;
+        }
+
+        // Isi count yang sebenarnya
+        foreach ($entries as $entry) {
+            $dates[$entry->date] = $entry->count;
+        }
+
+        // Format label dan array count untuk chart
+        $labels = collect($dates)->keys()->map(function ($date) {
+            return Carbon::parse($date)->isoFormat('ddd'); // Contoh: Sen, Sel
+        })->toArray();
+        $counts = collect($dates)->values()->toArray();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'labels' => $labels,
+                'counts' => $counts,
+            ]
+        ]);
+    }
+
+    /**
+     * API: Menghitung distribusi antrean per Loket (Grafik Donut).
+     * Route: api.admin.stats.loket_dist
+     */
+    public function getServiceDistribution(Request $request)
+    {
+        $today = Carbon::today()->toDateString();
+
+        $distribution = DataBukuTamu::select('id_loket', DB::raw('COUNT(*) as count'))
+            ->whereDate('tanggal', $today)
+            ->groupBy('id_loket')
+            ->get();
+
+        $totalAntrean = $distribution->sum('count');
+
+        $labels = [];
+        $percentages = [];
+
+        foreach ($distribution as $item) {
+            $labels[] = $this->getLoketName($item->id_loket);
+            $percentages[] = round(($item->count / $totalAntrean) * 100, 1);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'labels' => $labels,
+                'percentages' => $percentages,
+                'total' => $totalAntrean,
+            ]
+        ]);
+    }
+
+    /**
+     * API: Top 5 Layanan Paling Diminati (List).
+     * Route: api.admin.stats.top_services
+     */
+    public function getTopServices(Request $request)
+    {
+        $startOfMonth = Carbon::now()->startOfMonth()->toDateString();
+        $monthName = Carbon::now()->isoFormat('MMMM YYYY');
+
+        $topServices = DataBukuTamu::select('id_layanan_detail', DB::raw('COUNT(*) as total'))
+            ->whereDate('tanggal', '>=', $startOfMonth)
+            ->groupBy('id_layanan_detail')
+            ->orderBy('total', 'desc')
+            ->limit(5)
+            ->get();
+
+        // Ambil nama detail layanan
+        $serviceDetails = LayananDetail::whereIn('id_layanan_detail', $topServices->pluck('id_layanan_detail'))
+            ->pluck('nama_layanan_detail', 'id_layanan_detail');
+
+        $data = $topServices->map(function ($service) use ($serviceDetails) {
+            return [
+                'nama_layanan_detail' => $serviceDetails[$service->id_layanan_detail] ?? 'Layanan Tak Dikenal',
+                'total' => $service->total
+            ];
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'services' => $data,
+                'month' => $monthName,
+            ]
+        ]);
     }
 }

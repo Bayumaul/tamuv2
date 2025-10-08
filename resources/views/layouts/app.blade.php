@@ -1,3 +1,20 @@
+@php
+    $name = Auth::user()->name ?? 'User'; // fallback jika belum login
+    $words = explode(' ', trim($name));
+    $initials = '';
+
+    // ambil huruf pertama dari dua kata pertama
+    if (count($words) > 0) {
+        $initials .= strtoupper(substr($words[0], 0, 1)); // huruf pertama kata pertama
+    }
+    if (count($words) > 1) {
+        $initials .= strtoupper(substr($words[1], 0, 1)); // huruf pertama kata kedua
+    } else {
+        // jika cuma satu kata, ambil dua huruf pertama
+        $initials = strtoupper(substr($words[0], 0, 2));
+    }
+@endphp
+
 <!doctype html>
 
 <html lang="en" class="layout-navbar-fixed layout-menu-fixed layout-wide" dir="ltr" data-skin="default"
@@ -9,8 +26,9 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
-    <title>Dashboard | Antrean Kanwil DIY</title>
-
+    <title>
+        @yield('title') &bull; Antrean Kanwil DIY
+    </title>
     <meta name="description" content="" />
 
     <!-- Favicon -->
@@ -55,6 +73,14 @@
 
     <script src="{{ asset('templates/vuexy/') }}/assets/js/config.js"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet"
+        href="{{ asset('templates/vuexy/') }}/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
+    <link rel="stylesheet"
+        href="{{ asset('templates/vuexy/') }}/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
+    {{-- <link rel="stylesheet" href="{{ asset('templates/vuexy/') }}/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" /> --}}
+    <link rel="stylesheet" href="{{ asset('templates/vuexy/') }}/assets/vendor/libs/flatpickr/flatpickr.css" />
+    <!-- Row Group CSS -->
+    {{-- <link rel="stylesheet" href="{{ asset('templates/vuexy/') }}/assets/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" /> --}}
 </head>
 
 <body>
@@ -85,16 +111,28 @@
 
                 <ul class="menu-inner py-1">
                     <!-- Page -->
-                    <li class="menu-item active">
+                    <li class="menu-item">
                         <a href="index.html" class="menu-link">
                             <i class="menu-icon icon-base ti tabler-smart-home"></i>
-                            <div data-i18n="Page 1">Antrean</div>
+                            <div data-i18n="Page 1">Dashboard</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="{{ route('call') }}" class="menu-link">
+                            <i class="menu-icon icon-base ti tabler-smart-home"></i>
+                            <div data-i18n="Page 1">Panggilan Antrian</div>
                         </a>
                     </li>
                     <li class="menu-item">
                         <a href="page-2.html" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-app-window"></i>
-                            <div data-i18n="Page 2">Page 2</div>
+                            <i class="menu-icon icon-base ti tabler-clipboard-data"></i>
+                            <div data-i18n="Page 2">Rekap</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('users*') ? 'active' : '' }}">
+                        <a href="{{ route('users.index') }}" class="menu-link">
+                            <i class="menu-icon icon-base ti tabler-users"></i>
+                            <div data-i18n="Page 2">User</div>
                         </a>
                     </li>
                 </ul>
@@ -161,8 +199,12 @@
                                 <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);"
                                     data-bs-toggle="dropdown">
                                     <div class="avatar avatar-online">
-                                        <img src="{{ asset('templates/vuexy/') }}/assets/img/avatars/1.png" alt
-                                            class="rounded-circle" />
+                                        <div class="avatar-wrapper">
+                                            <div class="avatar avatar-sm me-4"><span
+                                                    class="avatar-initial rounded-circle bg-label-warning">{{ $initials }}
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
@@ -171,13 +213,16 @@
                                             <div class="d-flex">
                                                 <div class="flex-shrink-0 me-3">
                                                     <div class="avatar avatar-online">
-                                                        <img src="{{ asset('templates/vuexy/') }}/assets/img/avatars/1.png"
-                                                            alt class="w-px-40 h-auto rounded-circle" />
+                                                        <div class="avatar-wrapper">
+                                                            <div class="avatar avatar-sm me-4"><span
+                                                                    class="avatar-initial rounded-circle bg-label-warning">{{ $initials }}</span>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="flex-grow-1">
-                                                    <h6 class="mb-0">John Doe</h6>
-                                                    <small class="text-body-secondary">Admin</small>
+                                                    <h6 class="mb-0">{{ Auth::user()->username ?? 'Petugas' }}</h6>
+                                                    <small class="text-body-secondary">Petugas</small>
                                                 </div>
                                             </div>
                                         </a>
@@ -293,11 +338,18 @@
     <!-- Vendors JS -->
 
     <!-- Main JS -->
+    <script src="{{ asset('templates/vuexy/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js') }}"></script>
+    {{-- <script src="{{ asset('templates/vuexy/') }}/assets/js/tables-datatables-basic.js"></script> --}}
 
     <script src="{{ asset('templates/vuexy/') }}/assets/js/main.js"></script>
-
+    <script>
+        $(document).ready(function() {
+            $('.data-table').DataTable();
+        });
+    </script>
     <!-- Page JS -->
     @stack('scripts')
+
 </body>
 
 </html>

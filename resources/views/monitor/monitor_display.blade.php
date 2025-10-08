@@ -1,123 +1,182 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
+<!doctype html>
+<html lang="id" class="layout-navbar-fixed layout-menu-fixed layout-wide" dir="ltr"
+    data-assets-path="{{ asset('templates/vuexy/') }}/assets/" data-template="vertical-menu-template-starter"
+    data-bs-theme="light">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="description" content="Buku Tamu Layanan Kantor Wilayah Kementerian Hukum Daerah Istimewa Yogyakarta" />
-    <meta name="author" content="Kanwil Kemenkum DIY" />
-    <meta name="keywords" content="kanwil kemenkum diy, kemenkum, kemenkum diy, kantor wilayah, kementerian hukum" />
+    <meta charset="utf-8" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <title>Monitor Antrean | Kanwil Kemenkum DIY</title>
 
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Buku Tamu Elektronik - Kanwil Kemenkum DIY" />
-    <meta property="og:description"
-        content="Sistem Buku Tamu dan Antrian Elektronik Kantor Wilayah Kementerian Hukum Daerah Istimewa Yogyakarta" />
-    <meta property="og:image" content="https://kemenkumjogja.id/img.png" />
-    <meta property="og:url" content="https://kemenkumjogja.id" />
-    <meta property="og:site_name" content="KemenkumJogja.ID" />
+    <link rel="icon" type="image/png" href="{{ asset('templates/vuexy/') }}/assets/img/logo.png" />
 
-    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('templates/sash/') }}/images/logo.png" />
-    <title>Buku Tamu Layanan Kanwil Kementrian Hukum DIY</title>
+    <!-- Fonts & Core CSS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ asset('templates/vuexy/') }}/assets/vendor/css/core.css" />
+    <link rel="stylesheet" href="{{ asset('templates/vuexy/') }}/assets/css/demo.css" />
+    <link rel="stylesheet" href="{{ asset('templates/vuexy/') }}/assets/vendor/libs/node-waves/node-waves.css" />
+    <link rel="stylesheet"
+        href="{{ asset('templates/vuexy/') }}/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
 
-    <link id="style" href="{{ asset('templates/sash/') }}/plugins/bootstrap/css/bootstrap.min.css"
-        rel="stylesheet" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a1931, #10284e);
+            color: #fff;
+            font-family: 'Public Sans', sans-serif;
+        }
 
-    <link href="{{ asset('templates/sash/') }}/css/style.css" rel="stylesheet" />
+        .card-navy {
+            background: #112b5f;
+            border: 2px solid #d4af37;
+            border-radius: 1rem;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
 
-    <link href="{{ asset('templates/sash/') }}/css/plugins.css" rel="stylesheet" />
+        .card-navy:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+        }
 
-    <link href="{{ asset('templates/sash/') }}/css/icons.css" rel="stylesheet" />
+        .card-gold {
+            background: linear-gradient(135deg, #f4d03f, #f39c12);
+            color: #1e1e54;
+            border-radius: 1rem;
+        }
 
-    <link href="{{ asset('templates/sash/') }}/switcher/css/switcher.css" rel="stylesheet" />
-    <link href="{{ asset('templates/sash/') }}/switcher/demo.css" rel="stylesheet" />
+        .logo-text {
+            font-weight: 700;
+            color: #f4d03f;
+            text-transform: uppercase;
+        }
+
+        .text-gold {
+            color: #f4d03f !important;
+        }
+
+        #clock {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .marquee-text {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #f4d03f;
+        }
+
+        .loket-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.4);
+            border-radius: 0.75rem;
+            padding: 1rem;
+        }
+
+        .overlay-audio {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(10, 25, 49, 0.95);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .overlay-card {
+            background: #fff;
+            color: #0a1931;
+            padding: 2rem 3rem;
+            border-radius: 1rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+    </style>
 </head>
 
-<body class="app ltr landing-page horizontal">
-    {{-- <div id="global-loader">
-        <img src="{{ asset('templates/sash/images/loader.svg') }}" class="loader-img" alt="Loader" />
-    </div> --}}
-    <div class="page" style="background-color: #1e1e54">
-        <div class="container-fluid p-3 header">
-            <div class="row align-items-center">
-                <div class="col-md-6 d-flex align-items-center">
-                    <img src="{{ asset('img/logo.png') }}" alt="Logo Kemenkum"
-                        style="height: 60px; margin-right: 15px" />
-                    <span class="logo-text fw-bold fs-5 text-dark">
-                        Kantor Wilayah Kementerian Hukum <br />D.I. Yogyakarta
-                    </span>
-                </div>
+<body>
 
-                <div class="col-md-6 text-end d-flex justify-content-end align-items-center text-dark">
-                    <div class="dropdown d-flex me-3">
-                        <a class="nav-link icon full-screen-link nav-link-bg">
-                            <i class="fe fe-minimize fullscreen-button"></i>
-                        </a>
+    <!-- Overlay Audio Interaction -->
+    <div id="audio-interaction-overlay" class="overlay-audio">
+        <div class="overlay-card">
+            <h3 class="fw-bold mb-3 text-navy">🔊 Monitor Audio Diblokir</h3>
+            <p class="mb-3">Silakan tekan tombol di bawah untuk mengaktifkan pengumuman suara.</p>
+            <button id="start-audio-btn" class="btn btn-primary btn-lg fw-bold">
+                <i class="ti ti-volume me-2"></i> Aktifkan Pengumuman
+            </button>
+        </div>
+    </div>
+
+    <div class="container-fluid py-3">
+        <!-- Header -->
+        <div class="row align-items-center mb-3">
+            <div class="col-md-6 d-flex align-items-center">
+                <img src="{{ asset('img/') }}/logo.png" alt="Logo Kemenkum" height="60"
+                    class="me-3" />
+                <div>
+                    <h5 class="logo-text mb-0">Kementerian Hukum RI</h5>
+                    <span>Kanwil D.I. Yogyakarta</span>
+                </div>
+            </div>
+            <div class="col-md-6 text-end">
+                <div id="clock" class="text-gold fw-semibold"></div>
+                <small>Jam Layanan: Senin–Kamis 08.00–15.00 | Jum’at Online</small>
+            </div>
+        </div>
+
+        <!-- Display Utama -->
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="card card-gold text-center shadow-lg">
+                    <div class="card-body">
+                        <h4 class="fw-bold mb-3">Nomor Antrean Dipanggil</h4>
+                        <h1 id="currentNumber" class="display-1 fw-bold">---</h1>
+                        <h4 id="currentLoket" class="fw-bold mt-3 text-navy">Loket -</h4>
                     </div>
-                    <div>
-                        <p id="clock" class="fw-semibold fs-5 mt-2"></p>
-                        <small>Jadwal Buka Layanan: Senin s.d Kamis - 08.00 s.d 15.00, Jum'at:
-                            Pelayanan Online
-                        </small>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card card-navy shadow-lg">
+                    <div class="card-body p-0 rounded-3 overflow-hidden">
+                        <iframe width="100%" height="315"
+                            src="https://www.youtube.com/embed/T-U2_ADY9qM?autoplay=1&mute=1&loop=1&playlist=T-U2_ADY9qM"
+                            title="Video Informasi" frameborder="0"
+                            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen>
+                        </iframe>
                     </div>
                 </div>
             </div>
         </div>
-        <section class="py-4 text-white">
-            <div class="container-fluid">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <div class="card bg-warning text-dark text-center shadow-lg h-100">
-                            <div class="card-body d-flex flex-column justify-content-center">
-                                <h3 class="fw-bold">NOMOR ANTRIAN YANG DIPANGGIL</h3>
-                                <h1 id="currentNumber" class="display-1 fw-bold">---</h1>
-                                <h4 id="currentLoket" class="fw-bold mt-3"></h4> {{-- Menampilkan Loket Tujuan --}}
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="col-md-6">
-                        <div class="card bg-dark shadow-lg h-100">
-                            <div class="card-body p-0">
-                                <iframe width="100%" height="315"
-                                    src="https://www.youtube.com/embed/T-U2_ADY9qM?autoplay=1&mute=1&loop=1&playlist=T-U2_ADY9qM"
-                                    title="YouTube video player" frameborder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowfullscreen>
-                                </iframe>
-                            </div>
-                        </div>
+        <!-- Status Loket -->
+        <div class="row g-3 mt-3 text-center" id="loketStatus">
+            @for ($i = 1; $i <= 4; $i++)
+                <div class="col-md-3 col-6">
+                    <div class="loket-card">
+                        <h5 class="fw-bold text-gold mb-1">LOKET {{ $i }}</h5>
+                        <p class="fs-4 mb-0" id="loket-{{ $i }}">IDLE</p>
                     </div>
                 </div>
+            @endfor
+        </div>
 
-                {{-- Status Loket 1-4 (Diisi dari API) --}}
-                <div class="row g-2 mt-3 text-center" id="loketStatus">
-                    @for ($i = 1; $i <= 4; $i++)
-                        <div class="col">
-                            <div class="card bg-info shadow-sm">
-                                <div class="card-body">
-                                    <h5 class="fw-bold">LOKET {{ $i }}</h5>
-                                    <p class="fs-3 mb-0" id="loket-{{ $i }}">IDLE</p>
-                                </div>
-                            </div>
-                        </div>
-                    @endfor
-                </div>
-
-                <div class="bg-secondary text-white mt-3 py-2 px-3">
-                    <marquee behavior="scroll" direction="left"
-                        style="font-size: 28px; font-weight: bold; padding: 10px;">
-                        Selamat datang di layanan antrian Kanwil Kemenkum DIY | Mohon jaga
-                        ketertiban ruang tunggu | Mohon antri dengan tertib
-                    </marquee>
-                </div>
-            </div>
-        </section>
-
+        <!-- Running Text -->
+        <div class="mt-4 py-3 px-3 rounded-3 text-center"
+            style="background: rgba(255,255,255,0.1); border-top: 2px solid #f4d03f;">
+            <marquee behavior="scroll" direction="left" class="marquee-text">
+                Selamat datang di layanan antrean Kanwil Kemenkum D.I. Yogyakarta | Mohon jaga ketertiban dan tetap
+                tertib
+            </marquee>
+        </div>
     </div>
 
-    {{-- Scripts --}}
-    <script src="{{ asset('templates/sash/js/jquery.min.js') }}"></script>
+    <!-- JS -->
+    <script src="{{ asset('templates/vuexy/') }}/assets/vendor/libs/jquery/jquery.js"></script>
+    <script src="{{ asset('templates/vuexy/') }}/assets/vendor/js/bootstrap.js"></script>
+
     <script>
         // URL API Laravel dari Route Name
         const API_DISPLAY_PROCESSOR = "{{ route('api.display.processor') }}";
@@ -284,8 +343,37 @@
             // Polling untuk status loket di bawah (10 detik)
             setInterval(updateLoketStatus, 10000);
         });
+        // --- INISIASI ---
+        $(document).ready(function() {
+            // Jam Realtime (boleh berjalan sebelum klik)
+            updateClock();
+            setInterval(updateClock, 1000);
+
+            // Logika Fullscreen (tetap sama)
+
+            // >>> KUNCI: EVENT LISTENER UNTUK TOMBOL START <<<
+            $('#start-audio-btn').on('click', function() {
+
+                // 1. Sembunyikan Overlay
+                $('#audio-interaction-overlay').hide();
+
+                // 2. Coba putar suara dummy (untuk 'membuka' izin audio di browser)
+                new Audio(ASSET_URL + '/lonceng.mp3').play().catch(e => {
+                    console.warn("Lonceng dummy gagal diputar, tapi izin audio sudah didapatkan.");
+                });
+
+                // 3. Mulai Polling dan Update Display
+                checkAndProcessCall();
+                updateServiceGrid();
+
+                // Polling Utama
+                setInterval(checkAndProcessCall, 5000);
+                setInterval(updateServiceGrid, 15000);
+            });
+        });
     </script>
-    {{-- ... (Sisa script Anda) ... --}}
+    </script>
 </body>
 
 </html>
+

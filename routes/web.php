@@ -2,9 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\MonitorController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PendaftaranController;
+use App\Http\Controllers\ReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,10 +54,8 @@ Route::post('/api/dashboard/reissue', [DashboardController::class, 'reissueCall'
 // Aksi Lewati Antrean
 Route::post('/api/dashboard/skip', [DashboardController::class, 'skipCall'])->name('api.dashboard.skip');
 
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth'])->name('dashboard');
 
 require __DIR__ . '/auth.php';
 
@@ -76,3 +76,15 @@ Route::get('/api/public/loket-status', [ApiController::class, 'getLoketStatus'])
 Route::get('/api/public/last-active-call', [ApiController::class, 'getLastActiveCall'])->name('api.public.last_active_call');
 Route::get('/api/public/personal-status', [ApiController::class, 'getPersonalStatus'])->name('api.public.personal_status');
 // Route::get('/personal-status', [ApiController::class, 'getPersonalStatus'])->name('api.public.personal_status');
+
+Route::get('users/data', [UserController::class, 'getUsersData'])->name('users.data');
+Route::resource('users', UserController::class);
+
+Route::get('stats/harian', [DashboardController::class, 'getDailyStats'])->name('stats.harian');
+Route::get('stats/weekly-trend', [DashboardController::class, 'getWeeklyTrend'])->name('stats.weekly_trend');
+Route::get('stats/loket-dist', [DashboardController::class, 'getServiceDistribution'])->name('stats.loket_dist');
+Route::get('stats/top-services', [DashboardController::class, 'getTopServices'])->name('stats.top_services');
+
+Route::get('reports/visits', [ReportController::class, 'index'])->name('reports.visits.index');
+Route::get('reports/visits/data', [ReportController::class, 'getVisitsData'])->name('reports.visits.data');
+Route::post('reports/send-survey/{id}', [ReportController::class, 'sendSurvey'])->name('reports.send_survey');
