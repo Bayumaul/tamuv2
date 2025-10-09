@@ -9,7 +9,7 @@
         content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
     <title>Monitor Antrean | Kanwil Kemenkum DIY</title>
 
-    <link rel="icon" type="image/png" href="{{ asset('templates/vuexy/') }}/assets/img/logo.png" />
+    <link rel="icon" type="image/png" href="{{ asset('img/') }}/logo.png" />
 
     <!-- Fonts & Core CSS -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -22,63 +22,78 @@
         href="{{ asset('templates/vuexy/') }}/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
 
     <style>
+        /* ====== TEMA UTAMA ====== */
         body {
-            background: linear-gradient(135deg, #0a1931, #10284e);
+            background: linear-gradient(135deg, #7b1113, #0a1931);
             color: #fff;
             font-family: 'Public Sans', sans-serif;
-        }
-
-        .card-navy {
-            background: #112b5f;
-            border: 2px solid #d4af37;
-            border-radius: 1rem;
-            color: #fff;
-            transition: all 0.3s ease;
-        }
-
-        .card-navy:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
-        }
-
-        .card-gold {
-            background: linear-gradient(135deg, #f4d03f, #f39c12);
-            color: #1e1e54;
-            border-radius: 1rem;
+            min-height: 100vh;
         }
 
         .logo-text {
             font-weight: 700;
-            color: #f4d03f;
+            color: #ffd700;
             text-transform: uppercase;
         }
 
         .text-gold {
-            color: #f4d03f !important;
+            color: #ffd700 !important;
         }
 
+        /* ====== CARD UTAMA ====== */
+        .card-gold {
+            background: linear-gradient(145deg, #ffd700, #f4c10f);
+            color: #0a1931;
+            border: 3px solid #b8860b;
+            border-radius: 1rem;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            height: 100%;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card-gold:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3);
+        }
+
+        .card-navy {
+            background: linear-gradient(145deg, #0d224a, #1b2f5a);
+            border: 3px solid #ffd700;
+            border-radius: 1rem;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            height: 100%;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card-navy:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.25);
+        }
+
+        /* ====== DETAIL UI ====== */
         #clock {
             font-size: 1.2rem;
             font-weight: 500;
-        }
-
-        .marquee-text {
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: #f4d03f;
+            color: #ffd700;
         }
 
         .loket-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 215, 0, 0.4);
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 215, 0, 0.5);
             border-radius: 0.75rem;
             padding: 1rem;
+            color: #fff;
         }
 
+        .loket-card h5 {
+            color: #ffd700;
+        }
+
+        /* ====== OVERLAY AUDIO ====== */
         .overlay-audio {
             position: fixed;
             inset: 0;
-            background-color: rgba(10, 25, 49, 0.95);
+            background: rgba(10, 25, 49, 0.95);
             z-index: 9999;
             display: flex;
             justify-content: center;
@@ -91,8 +106,55 @@
             color: #0a1931;
             padding: 2rem 3rem;
             border-radius: 1rem;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
             text-align: center;
+        }
+
+        /* ====== STATUS WARNA ANTREAN ====== */
+        .bg-warning .main-call-display {
+            color: #0a1931 !important;
+        }
+
+        .bg-success .main-call-display {
+            color: #0a1931 !important;
+        }
+
+        .bg-navy .main-call-display {
+            color: #ffd700 !important;
+        }
+
+        /* ====== MARQUEE ====== */
+        .marquee-wrapper {
+            background: rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #ffd700;
+            border-radius: 0.75rem;
+            padding: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .marquee-text {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #ffd700;
+        }
+
+        /* ====== ANIMASI ANGKA ====== */
+        #currentNumber {
+            animation: pulse 1.3s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
     </style>
 </head>
@@ -103,7 +165,7 @@
     <div id="audio-interaction-overlay" class="overlay-audio">
         <div class="overlay-card">
             <h3 class="fw-bold mb-3 text-navy">🔊 Monitor Audio Diblokir</h3>
-            <p class="mb-3">Silakan tekan tombol di bawah untuk mengaktifkan pengumuman suara.</p>
+            <p class="mb-3">Tekan tombol di bawah untuk mengaktifkan pengumuman suara.</p>
             <button id="start-audio-btn" class="btn btn-primary btn-lg fw-bold">
                 <i class="ti ti-volume me-2"></i> Aktifkan Pengumuman
             </button>
@@ -114,38 +176,38 @@
         <!-- Header -->
         <div class="row align-items-center mb-3">
             <div class="col-md-6 d-flex align-items-center">
-                <img src="{{ asset('img/') }}/logo.png" alt="Logo Kemenkum" height="60"
-                    class="me-3" />
+                <img src="{{ asset('img/') }}/logo.png" alt="Logo Kemenkum" height="60" class="me-3" />
                 <div>
-                    <h5 class="logo-text mb-0">Kementerian Hukum RI</h5>
+                    <h5 class="logo-text mb-0">Kementerian Hukum dan HAM RI</h5>
                     <span>Kanwil D.I. Yogyakarta</span>
                 </div>
             </div>
             <div class="col-md-6 text-end">
-                <div id="clock" class="text-gold fw-semibold"></div>
-                <small>Jam Layanan: Senin–Kamis 08.00–15.00 | Jum’at Online</small>
+                <div id="clock" class="fw-semibold"></div>
+                <small class="text-light">Jam Layanan: Senin–Kamis 08.00–15.00 | Jum’at Online</small>
             </div>
         </div>
 
         <!-- Display Utama -->
-        <div class="row g-3">
+        <div class="row g-4 align-items-stretch">
             <div class="col-md-6">
-                <div class="card card-gold text-center shadow-lg">
-                    <div class="card-body">
+                <div class="card card-gold text-center shadow-lg h-100">
+                    <div class="card-body d-flex flex-column justify-content-center">
                         <h4 class="fw-bold mb-3">Nomor Antrean Dipanggil</h4>
-                        <h1 id="currentNumber" class="display-1 fw-bold">---</h1>
+                        <h1 id="currentNumber" class="display-1 fw-bold main-call-display">---</h1>
                         <h4 id="currentLoket" class="fw-bold mt-3 text-navy">Loket -</h4>
                     </div>
                 </div>
             </div>
+
             <div class="col-md-6">
-                <div class="card card-navy shadow-lg">
+                <div class="card card-navy shadow-lg h-100">
                     <div class="card-body p-0 rounded-3 overflow-hidden">
-                        <iframe width="100%" height="315"
-                            src="https://www.youtube.com/embed/T-U2_ADY9qM?autoplay=1&mute=1&loop=1&playlist=T-U2_ADY9qM"
-                            title="Video Informasi" frameborder="0"
-                            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture" allowfullscreen>
-                        </iframe>
+                        <div class="ratio ratio-16x9">
+                            <iframe src="https://www.youtube.com/embed/T-U2_ADY9qM?autoplay=1&mute=1&loop=1&playlist=T-U2_ADY9qM"
+                                title="Video Informasi" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"
+                                allowfullscreen></iframe>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -156,7 +218,7 @@
             @for ($i = 1; $i <= 4; $i++)
                 <div class="col-md-3 col-6">
                     <div class="loket-card">
-                        <h5 class="fw-bold text-gold mb-1">LOKET {{ $i }}</h5>
+                        <h5 class="fw-bold mb-1">LOKET {{ $i }}</h5>
                         <p class="fs-4 mb-0" id="loket-{{ $i }}">IDLE</p>
                     </div>
                 </div>
@@ -164,11 +226,9 @@
         </div>
 
         <!-- Running Text -->
-        <div class="mt-4 py-3 px-3 rounded-3 text-center"
-            style="background: rgba(255,255,255,0.1); border-top: 2px solid #f4d03f;">
+        <div class="marquee-wrapper text-center">
             <marquee behavior="scroll" direction="left" class="marquee-text">
-                Selamat datang di layanan antrean Kanwil Kemenkum D.I. Yogyakarta | Mohon jaga ketertiban dan tetap
-                tertib
+                Selamat datang di layanan antrean Kanwil Kemenkum D.I. Yogyakarta | Mohon jaga ketertiban dan tetap tertib
             </marquee>
         </div>
     </div>
@@ -225,11 +285,11 @@
             ];
 
             urutDigits.forEach(digit => {
-                audioSequence.push(`${digit}.wav`); // Contoh: 0.mp3, 0.mp3, 1.mp3
+                audioSequence.push(`${digit}.mp3`); // Contoh: 0.mp3, 0.mp3, 1.mp3
             });
 
             audioSequence.push('silahkan_ke_loket.mp3');
-            audioSequence.push(`${loketTujuan}.wav`); // Contoh: 2.mp3
+            audioSequence.push(`${loketTujuan}.mp3`); // Contoh: 2.mp3
 
             isSpeaking = true;
 
@@ -270,10 +330,14 @@
                         lastProcessedQueueId = data.id;
 
                         // 1. Update Tampilan Utama
-                        $('#currentNumber').text(data.nomor_lengkap).parent().removeClass('bg-warning')
-                            .addClass('bg-success');
-                        $('#currentLoket').text(`Menuju Loket ${data.loket_pemanggil}`);
+                        // Menghapus kelas warna lama dan menambahkan kelas sukses
+                        $('#currentNumber').parent().removeClass('bg-warning bg-info').addClass('bg-success');
 
+                        // KOREKSI KRITIS: Ubah warna font angka menjadi gelap (Navy/Hitam)
+                        $('#currentNumber').removeClass('text-warning text-emas').addClass('text-dark');
+
+                        $('#currentNumber').text(data.nomor_lengkap);
+                        $('#currentLoket').text(`Menuju Loket ${data.loket_pemanggil}`);
                         // 2. Putar Suara (Jalankan fungsi async)
                         playAudioSequence(data.nomor_lengkap, data.loket_pemanggil)
                             .then(() => {
@@ -376,4 +440,3 @@
 </body>
 
 </html>
-

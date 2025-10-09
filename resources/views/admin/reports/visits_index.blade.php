@@ -44,8 +44,8 @@
                 </div>
                 
                 <div class="col-12 mt-3">
-                    <button id="apply-filter" class="btn btn-primary me-2"><i class="ti ti-filter me-1"></i> Terapkan Filter</button>
-                    <button id="reset-filter" class="btn btn-label-secondary"><i class="ti ti-rotate-2 me-1"></i> Reset</button>
+                    <button id="apply-filter" class="btn btn-primary me-2"><i class="menu-icon icon-base ti tabler-filter me-1"></i> Terapkan Filter</button>
+                    <button id="reset-filter" class="btn btn-label-secondary"><i class="menu-icon icon-base ti tabler-rotate-2 me-1"></i> Reset</button>
                 </div>
             </div>
         </div>
@@ -144,12 +144,12 @@ $(function () {
         SURVEY_TEMPLATES.forEach(template => {
             dropdownHtml += `<a class="dropdown-item survey-option" href="#" 
                                 data-template-id="${template.id}" data-template-name="${template.name}">
-                                <i class="ti ti-file-text me-2"></i> ${template.name}
+                                <i class="menu-icon icon-base ti tabler-file-text me-2"></i> ${template.name}
                             </a>`;
         });
         
         Swal.fire({
-            title: 'Pilih Template Survei',
+            title: 'Pilih Survei',
             html: `<div class="dropdown-menu d-block position-static shadow-lg border p-2">${dropdownHtml}</div>`,
             showCancelButton: true,
             showConfirmButton: false, 
@@ -165,7 +165,7 @@ $(function () {
             Swal.close(); 
             
             Swal.fire({
-                title: `Kirim Template: ${templateName}?`,
+                title: `Kirim ${templateName}?`,
                 text: "Survei akan dikirim via WhatsApp ke pelanggan ini.",
                 icon: 'question',
                 showCancelButton: true,

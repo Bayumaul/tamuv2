@@ -46,11 +46,13 @@
                                     </td>
 
                                     <td class="text-end">
-    <div class="btn-group" role="group">
-        <a href="{{ route('survey.edit', $survey->id) }}" class="btn btn-warning btn-sm">Edit</a>
-        <a type="button" onclick="openModal({{ $survey->id }})" class="btn btn-danger btn-sm text-white">Hapus</a>
-    </div>
-</td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ route('survey.edit', $survey->id) }}"
+                                                class="btn btn-warning btn-sm">Edit</a>
+                                            <a type="button" onclick="openModal({{ $survey->id }})"
+                                                class="btn btn-danger btn-sm text-white">Hapus</a>
+                                        </div>
+                                    </td>
 
                                 </tr>
                             @endforeach
