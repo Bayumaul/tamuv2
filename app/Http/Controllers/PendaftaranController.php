@@ -248,110 +248,119 @@ class PendaftaranController extends Controller
             'layanan' => 'required|exists:layanan_detail,id_layanan_detail',
         ]);
 
-        DB::beginTransaction();
-        try {
-            $tanggal = now()->format('Y-m-d');
+        // DB::beginTransaction();
+        // try {
+        $tanggal = now()->format('Y-m-d');
 
-            // 🔹 Cek atau buat DataTamu
-            $tamu = DataTamu::firstOrNew(['nik' => $validated['nik']]);
-            $tamu->fill([
-                'nama' => $validated['name'],
-                'no_hp' => $validated['no_hp'],
-                'alamat' => $validated['alamat'],
-                'kategori' => $validated['kategori_pengunjung'],
-            ]);
-            $tamu->save();
+        // 🔹 Cek atau buat DataTamu
+        $tamu = DataTamu::firstOrNew(['nik' => $validated['nik']]);
+        $tamu->fill([
+            'nama' => $validated['name'],
+            'no_hp' => $validated['no_hp'],
+            'alamat' => $validated['alamat'],
+            'kategori' => $validated['kategori_pengunjung'],
+        ]);
+        $tamu->save();
 
-            // 🔹 Ambil info layanan
-            $layananDetail = LayananDetail::with('layanan')
-                ->where('id_layanan_detail', $validated['layanan'])
-                ->first();
+        // 🔹 Ambil info layanan
+        $layananDetail = LayananDetail::with('layanan')
+            ->where('id_layanan_detail', $validated['layanan'])
+            ->first();
 
-            $idLayanan = $layananDetail->id_layanan;
-            $idLoket = $layananDetail->id_loket_tujuan; // KUNCI: Ambil Loket Tujuan
+        $idLayanan = $layananDetail->id_layanan;
+        $idLoket = $layananDetail->id_loket_tujuan;
 
-            // $antrianTerakhir = DisplayQueue::where('tanggal', $tanggal)
-            //     ->where('id_layanan', $idLayanan)
-            //     ->max('antrian');
+        // 🔹 Hitung nomor antrian hari ini untuk layanan tsb
+        $jumlahAntrian = DataBukuTamu::where('tanggal', $tanggal)
+            ->where('id_layanan', $idLayanan)
+            ->count();
 
+        $antrian = $jumlahAntrian + 1;
 
+        $kodeLayanan = $layananDetail->layanan->kode_layanan;
+        $nomorLengkap = $kodeLayanan . '-' . str_pad($antrian, 3, '0', STR_PAD_LEFT);
 
-            // 🔹 Hitung nomor antrian hari ini untuk layanan tsb
-            $jumlahAntrian = DataBukuTamu::where('tanggal', $tanggal)
-                ->where('id_layanan', $idLayanan)
-                ->count();
+        // 🔹 Simpan ke data_buku_tamu
+        $bukuTamu = DataBukuTamu::create([
+            'id_tamu' => $tamu->id_tamu,
+            'id_layanan_detail' => $layananDetail->id_layanan_detail,
+            'id_layanan' => $layananDetail->id_layanan,
+            'antrian' => $antrian,
+            'tanggal' => $tanggal,
+            'nomor_lengkap' => $nomorLengkap,
+            'tipe_layanan' => 'Offline',
+            'id_loket' => $idLoket, // Loket Tujuan
+        ]);
 
-            $antrian = $jumlahAntrian + 1;
+        // 🔹 Ambil data lengkap untuk pesan WA
+        $databuku = DataBukuTamu::select(
+            'data_buku_tamu.*',
+            'data_tamu.nama',
+            'data_tamu.no_hp',
+            'layanan.kode_layanan',
+            'layanan.nama_layanan',
+            'layanan_detail.nama_layanan_detail'
+        )
+            ->join('data_tamu', 'data_tamu.id_tamu', '=', 'data_buku_tamu.id_tamu')
+            ->join('layanan', 'layanan.id_layanan', '=', 'data_buku_tamu.id_layanan')
+            ->join('layanan_detail', 'layanan_detail.id_layanan_detail', '=', 'data_buku_tamu.id_layanan_detail')
+            ->where('data_buku_tamu.id_tamu', $tamu->id_tamu)
+            ->orderByDesc('data_buku_tamu.id_buku')
+            ->first();
 
-            $kodeLayanan = $layananDetail->layanan->kode_layanan;
-            $nomorLengkap = $kodeLayanan . '-' . str_pad($antrian, 3, '0', STR_PAD_LEFT);
+        // 🔹 Format nomor HP
+        $nomor = $this->formatNomorWA($databuku->no_hp);
 
-            // 🔹 Simpan ke data_buku_tamu
-            $bukuTamu = DataBukuTamu::create([
-                'id_tamu' => $tamu->id_tamu,
-                'id_layanan_detail' => $layananDetail->id_layanan_detail,
-                'id_layanan' => $layananDetail->id_layanan,
-                'antrian' => $antrian,
-                'tanggal' => $tanggal,
-                'nomor_lengkap' => $nomorLengkap,
-                'tipe_layanan' => 'Offline',
-                'id_loket' => $idLoket, // Loket Tujuan
-            ]);
+        // 🔹 Waktu dan format tanggal
+        $waktu = now()->locale('id')->isoFormat('dddd, D MMMM Y HH:mm') . ' WIB';
 
-            // 🔹 Ambil data lengkap untuk pesan WA
-            $databuku = DataBukuTamu::select(
-                'data_buku_tamu.*',
-                'data_tamu.nama',
-                'data_tamu.no_hp',
-                'layanan.kode_layanan',
-                'layanan.nama_layanan',
-                'layanan_detail.nama_layanan_detail'
-            )
-                ->join('data_tamu', 'data_tamu.id_tamu', '=', 'data_buku_tamu.id_tamu')
-                ->join('layanan', 'layanan.id_layanan', '=', 'data_buku_tamu.id_layanan')
-                ->join('layanan_detail', 'layanan_detail.id_layanan_detail', '=', 'data_buku_tamu.id_layanan_detail')
-                ->where('data_buku_tamu.id_tamu', $tamu->id_tamu)
-                ->orderByDesc('data_buku_tamu.id_buku')
-                ->first();
+        // 🔹 Tentukan kategori
+        // $kategoriText = match ($validated['kategori']) {
+        //     1 => 'Permohonan Informasi',
+        //     2 => 'Konsultasi',
+        //     default => 'Pengaduan',
+        // };
 
-            // 🔹 Format nomor HP
-            $nomor = $this->formatNomorWA($databuku->no_hp);
+        $namaLayananDetail = $validated['layanan'] == 9
+            ? $databuku->layanan_lain
+            : $databuku->nama_layanan_detail;
 
-            // 🔹 Waktu dan format tanggal
-            $waktu = now()->locale('id')->isoFormat('dddd, D MMMM Y HH:mm') . ' WIB';
+        // 🔹 Pesan WhatsApp
+        $pesan = "Terima Kasih Bapak/Ibu *{$databuku->nama}*,\n\n";
+        // $pesan .= "Anda telah terdaftar pada Layanan $kategoriText Kategori *{$databuku->nama_layanan}* - *{$namaLayananDetail}* ";
+        $pesan .= "Kantor Wilayah Kementerian Hukum Daerah Istimewa Yogyakarta pada $waktu.\n\n";
+        $pesan .= "Mohon ditunggu, Petugas Kami akan menghubungi Anda.\n\nTerima Kasih\n\n_Pesan ini dikirim otomatis_";
 
-            // 🔹 Tentukan kategori
-            // $kategoriText = match ($validated['kategori']) {
-            //     1 => 'Permohonan Informasi',
-            //     2 => 'Konsultasi',
-            //     default => 'Pengaduan',
-            // };
+        // 🔹 Kirim WA 
 
-            $namaLayananDetail = $validated['layanan'] == 9
-                ? $databuku->layanan_lain
-                : $databuku->nama_layanan_detail;
+        $encodedId = base64_encode($databuku->id_buku);
+        $cardUrl = route('offline.registration.card', ['encoded_id' => $encodedId]); // Menggunakan route Laravel
 
-            // 🔹 Pesan WhatsApp
-            $pesan = "Terima Kasih Bapak/Ibu *{$databuku->nama}*,\n\n";
-            // $pesan .= "Anda telah terdaftar pada Layanan $kategoriText Kategori *{$databuku->nama_layanan}* - *{$namaLayananDetail}* ";
-            $pesan .= "Kantor Wilayah Kementerian Hukum Daerah Istimewa Yogyakarta pada $waktu.\n\n";
-            $pesan .= "Mohon ditunggu, Petugas Kami akan menghubungi Anda.\n\nTerima Kasih\n\n_Pesan ini dikirim otomatis_";
+        $nomorWA = $this->formatNomorWA($validated['no_hp']);
+        $waktu = Carbon::now()->locale('id')->isoFormat('dddd, D MMMM Y HH:mm') . ' WIB';
+        $namaLayanan = $layananDetail->nama_layanan_detail;
 
-            // 🔹 Kirim WA (contoh)
-            // Kirimfonnte([
-            //     "target" => $nomor,
-            //     "message" => $pesan,
-            // ]);
+        // SUSUNAN PESAN LENGKAP (sesuai format native Anda)
+        $pesan = "Terima Kasih Bapak/Ibu *{$validated['name']}*,\n\n";
+        $pesan .= "Anda telah terdaftar pada Layanan Offline Kategori *$namaLayanan* ";
+        $pesan .= "Kantor Wilayah Kementerian Hukum Daerah Istimewa Yogyakarta pada $waktu.\n\n";
+        $pesan .= "Sekarang Anda berada pada Nomor Antrean *$nomorLengkap*. ";
+        $pesan .= "Silahkan Download Kartu Antrian pada link berikut:\n$cardUrl";
+        $pesan .= "\n\nSilakan tunjukkan pesan ini ke petugas kami saat anda berada di pelayanan secara tatap muka (Offline).";
+        $pesan .= "\nTerima Kasih";
+        $pesan .= "\n\n_Pesan ini dikirim otomatis_";
 
-            DB::commit();
-            // Redirect ke kartu
-            $encodedId = base64_encode($databuku->id_buku);
-            return redirect()->route('offline.registration.card', ['encoded_id' => $encodedId])
-                ->with('status', 'success');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('status', 'error')->withErrors(['msg' => $e->getMessage()]);
-        }
+        // KIRIM VIA HELPER
+        kirimFonnte($nomorWA, $pesan);
+
+        // DB::commit();
+        // Redirect ke kartu
+        return redirect()->route('offline.registration.card', ['encoded_id' => $encodedId])
+            ->with('status', 'success');
+        // } catch (\Exception $e) {
+        //     DB::rollBack();
+        //     return back()->with('status', 'error')->withErrors(['msg' => $e->getMessage()]);
+        // }
     }
 
     private function formatNomorWA($nomor)
