@@ -11,7 +11,7 @@ class SurveyLink extends Model
 
     protected $fillable = [
         'name',
-        'url',
+        'caption',
         'is_active',
     ];
 

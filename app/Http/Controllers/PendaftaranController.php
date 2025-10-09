@@ -114,7 +114,7 @@ class PendaftaranController extends Controller
             return response()->json([
                 'status' => 'not_found',
                 'message' => 'Data tamu tidak ditemukan.'
-            ], 404);
+            ], 200);
         }
 
         // Jika ditemukan

@@ -111,28 +111,34 @@
 
                 <ul class="menu-inner py-1">
                     <!-- Page -->
-                    <li class="menu-item">
-                        <a href="index.html" class="menu-link">
+                    <li class="menu-item {{ request()->is('dashboard*') ? 'active' : '' }}">
+                        <a href="{{ route('dashboard.index') }}" class="menu-link">
                             <i class="menu-icon icon-base ti tabler-smart-home"></i>
-                            <div data-i18n="Page 1">Dashboard</div>
+                            <div >Dashboard</div>
                         </a>
                     </li>
-                    <li class="menu-item">
+                    <li class="menu-item {{ request()->is('call*') ? 'active' : '' }}">
                         <a href="{{ route('call') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-smart-home"></i>
-                            <div data-i18n="Page 1">Panggilan Antrian</div>
+                            <i class="menu-icon icon-base ti tabler-outbound"></i>
+                            <div>Panggilan Antrian</div>
                         </a>
                     </li>
-                    <li class="menu-item">
-                        <a href="page-2.html" class="menu-link">
+                    <li class="menu-item {{ request()->is('reports*') ? 'active' : '' }}">
+                        <a href="{{ route('reports.visits.index') }}" class="menu-link">
                             <i class="menu-icon icon-base ti tabler-clipboard-data"></i>
-                            <div data-i18n="Page 2">Rekap</div>
+                            <div>Rekap</div>
+                        </a>
+                    </li>
+                    <li class="menu-item {{ request()->is('survey*') ? 'active' : '' }}">
+                        <a href="{{ route('survey.index') }}" class="menu-link">
+                            <i class="menu-icon icon-base ti tabler-device-imac-search"></i>
+                            <div>Survey</div>
                         </a>
                     </li>
                     <li class="menu-item {{ request()->is('users*') ? 'active' : '' }}">
                         <a href="{{ route('users.index') }}" class="menu-link">
                             <i class="menu-icon icon-base ti tabler-users"></i>
-                            <div data-i18n="Page 2">User</div>
+                            <div>User</div>
                         </a>
                     </li>
                 </ul>

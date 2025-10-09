@@ -19,7 +19,9 @@ class ReportController extends Controller
         $layananMaster = \App\Models\Layanan::all();
         $loketMaster = [1 => 'Loket 1', 2 => 'Loket 2', 3 => 'Loket 3', 4 => 'Loket 4'];
 
-        return view('admin.reports.visits_index', compact('layananMaster', 'loketMaster'));
+        $SurveyLinks = SurveyLink::where('is_active', true)->get();
+
+        return view('admin.reports.visits_index', compact('layananMaster', 'loketMaster', 'SurveyLinks'));
     }
 
     /**
@@ -27,9 +29,6 @@ class ReportController extends Controller
      */
     public function getVisitsData(Request $request)
     {
-        // Logika Datatables (Anda mungkin perlu Datatables package seperti Yajra/Laravel-datatables)
-        // Untuk contoh ini, kita buat query dasar:
-
         $query = DataBukuTamu::with(['layanan', 'tamu', 'layananDetail'])
             ->whereNotNull('nomor_lengkap'); // Hanya antrean yang sudah dihitung
 
@@ -48,7 +47,7 @@ class ReportController extends Controller
         // Jika tidak, Anda harus memproses query ini secara manual untuk Datatables.
         $totalRecords = $query->count();
 
-        return   $data = $query->latest('tanggal')->get();
+        $data = $query->latest('tanggal')->get();
 
         $dataTableData = $data->map(function (DataBukuTamu $entry) {
             $statusBadge = match ($entry->status_antrean) {

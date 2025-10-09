@@ -16,7 +16,7 @@ class CreateSurveyLinksTable extends Migration
         Schema::create('survey_links', function (Blueprint $table) {
             $table->id();
             $table->string('name')->comment('Nama atau Deskripsi Survei (Contoh: Survei Kepuasan Pelayanan Umum)');
-            $table->string('url')->unique()->comment('Link URL Survei (Contoh: https://forms.gle/xyz)');
+            $table->text('caption')->comment('Isi Pesan WA Lengkap, termasuk link.');
             $table->boolean('is_active')->default(false)->comment('Status apakah link ini sedang digunakan/aktif.');
             $table->timestamps();
         });

@@ -65,7 +65,7 @@
         <div class="row">
             {{-- 1. KONTROL PANGGILAN (Kolom Kiri) --}}
             <div class="col-md-6">
-                <div class="card shadow card-control">
+                <div class="card shadow ">
                     <div class="card-header bg-primary text-white">
                         Pusat Kontrol Layanan
                     </div>

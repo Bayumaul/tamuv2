@@ -257,23 +257,23 @@
 
                 fetch(url)
                     .then((response) => {
+                        console.log(response);
                         if (!response.ok) {
                             throw new Error("Something went wrong!");
                         }
-                        return response.json(); // Parse the JSON data.
+                        return response.json();
                     })
                     .then((result) => {
-                        console.log(result);
-                        if (result) {
+                        if (result.status === "not_found") {
+                            $(".alert-info").show();
+                        } else if (result) {
                             const data = result;
                             console.log(data);
                             $("#name").val(data.nama);
                             $("#alamat").val(data.alamat);
                             $("#no_hp").val(data.no_hp);
                             $(".alert-success").show();
-                        } else if (result.status === "not_found") {
-                            $(".alert-info").show();
-                        }
+                        }  
 
                         $(".form").show();
                         $(".btn-periksa").hide();

@@ -7,6 +7,7 @@ use App\Http\Controllers\MonitorController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PendaftaranController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SurveyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -88,3 +89,5 @@ Route::get('stats/top-services', [DashboardController::class, 'getTopServices'])
 Route::get('reports/visits', [ReportController::class, 'index'])->name('reports.visits.index');
 Route::get('reports/visits/data', [ReportController::class, 'getVisitsData'])->name('reports.visits.data');
 Route::post('reports/send-survey/{id}', [ReportController::class, 'sendSurvey'])->name('reports.send_survey');
+
+Route::resource('survey', SurveyController::class);
