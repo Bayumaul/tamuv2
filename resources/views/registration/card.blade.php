@@ -22,7 +22,7 @@
     <link rel="shortcut icon" type="image/x-icon" href="{{ asset('templates/sash/') }}/images/logo.png" />
 
     <!-- TITLE -->
-    <title>TamuKu - Aplikasi Kunjungan Kanwil Kementrian Hukum DIY</title>
+    <title>Antrean - Aplikasi Kunjungan Kanwil Kementrian Hukum DIY</title>
 
     <!-- BOOTSTRAP CSS -->
     <link id="style" href="{{ asset('templates/sash/') }}/plugins/bootstrap/css/bootstrap.min.css"
