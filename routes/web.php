@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\MonitorController;
@@ -96,3 +97,6 @@ Route::get('stats/layanan', [LayananStatsController::class, 'index'])->name('sta
 Route::get('stats/layanan/api', [LayananStatsController::class, 'getLayananData'])->name('api.stats.layanan');
 
 Route::resource('survey', SurveyController::class);
+
+Route::get('admin/notif/recap', [AdminController::class, 'showRecapForm'])->name('admin.notif.form');
+Route::post('admin/notif/send', [AdminController::class, 'sendRecapReport'])->name('admin.notif.send');

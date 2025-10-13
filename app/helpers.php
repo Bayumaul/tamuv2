@@ -9,7 +9,17 @@ if (!function_exists('loket_user')) {
         return Auth::check() ? Auth::user()->id_loket : '0';
     }
 }
-
+function formatNomorWA($nomor)
+{
+    $nomor = trim($nomor);
+    if (str_starts_with($nomor, '0')) {
+        return '62' . substr($nomor, 1);
+    }
+    if (str_starts_with($nomor, '+62')) {
+        return substr($nomor, 1);
+    }
+    return $nomor;
+}
 
 
 if (!function_exists('kirimFonnte')) {

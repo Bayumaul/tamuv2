@@ -145,6 +145,12 @@
                             <div>Survey</div>
                         </a>
                     </li>
+                    <li class="menu-item {{ request()->is('admin*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.notif.form') }}" class="menu-link">
+                            <i class="menu-icon icon-base ti tabler-notification"></i>
+                            <div>Notifikasi</div>
+                        </a>
+                    </li>
                     <li class="menu-item {{ request()->is('users*') ? 'active' : '' }}">
                         <a href="{{ route('users.index') }}" class="menu-link">
                             <i class="menu-icon icon-base ti tabler-users"></i>
