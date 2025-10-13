@@ -49,20 +49,38 @@ class ReportController extends Controller
         $totalRecords = $query->count();
 
         $data = $query->latest('tanggal')->get();
-
         $dataTableData = $data->map(function (DataBukuTamu $entry) {
-            $statusBadge = match ($entry->status_antrean) {
-                'SELESAI' => '<span class="badge bg-success">Selesai</span>',
-                'DIPANGGIL' => '<span class="badge bg-primary">Aktif</span>',
-                'MENUNGGU' => '<span class="badge bg-info">Menunggu</span>',
-                'LEWAT' => '<span class="badge bg-danger">Lewat</span>',
-                default => '<span class="badge bg-secondary">Baru</span>',
-            };
-            $tipeBadge = match ($entry->tipe_layanan) {
-                'Online' => '<span class="badge bg-info">Online</span>',
-                'Offline' => '<span class="badge bg-primary">Offline</span>',
-                default => '<span class="badge bg-secondary">--</span>',
-            };
+            // === Ganti match status_antrean ===
+            switch ($entry->status_antrean) {
+                case 'SELESAI':
+                    $statusBadge = '<span class="badge bg-success">Selesai</span>';
+                    break;
+                case 'DIPANGGIL':
+                    $statusBadge = '<span class="badge bg-primary">Aktif</span>';
+                    break;
+                case 'MENUNGGU':
+                    $statusBadge = '<span class="badge bg-info">Menunggu</span>';
+                    break;
+                case 'LEWAT':
+                    $statusBadge = '<span class="badge bg-danger">Lewat</span>';
+                    break;
+                default:
+                    $statusBadge = '<span class="badge bg-secondary">Baru</span>';
+                    break;
+            }
+
+            // === Ganti match tipe_layanan ===
+            switch ($entry->tipe_layanan) {
+                case 'Online':
+                    $tipeBadge = '<span class="badge bg-info">Online</span>';
+                    break;
+                case 'Offline':
+                    $tipeBadge = '<span class="badge bg-primary">Offline</span>';
+                    break;
+                default:
+                    $tipeBadge = '<span class="badge bg-secondary">--</span>';
+                    break;
+            }
 
             $buttonText = ($entry->status_antrean === 'SELESAI') ? 'Kirim Survei' : 'Antrean Aktif';
 
@@ -78,6 +96,7 @@ class ReportController extends Controller
                 'aksi' => '<button class="btn btn-sm btn-label-success send-survey-btn" data-id="' . $entry->id_buku . '" ' . ($entry->status_antrean !== 'SELESAI' ? 'disabled' : '') . '>' . $buttonText . '</button>'
             ];
         });
+
 
         return response()->json([
             "draw" => intval($request->input('draw')),

@@ -195,12 +195,12 @@ class PendaftaranController extends Controller
             // 🔹 Waktu dan format tanggal
             $waktu = now()->locale('id')->isoFormat('dddd, D MMMM Y HH:mm') . ' WIB';
 
-            // 🔹 Tentukan kategori
-            $kategoriText = match ($validated['kategori']) {
-                1 => 'Permohonan Informasi',
-                2 => 'Konsultasi',
-                default => 'Pengaduan',
-            };
+            // // 🔹 Tentukan kategori
+            // $kategoriText = match ($validated['kategori']) {
+            //     1 => 'Permohonan Informasi',
+            //     2 => 'Konsultasi',
+            //     default => 'Pengaduan',
+            // };
 
             $namaLayananDetail = $validated['layanan'] == 9
                 ? $databuku->layanan_lain
@@ -208,7 +208,7 @@ class PendaftaranController extends Controller
 
             // 🔹 Pesan WhatsApp
             $pesan = "Terima Kasih Bapak/Ibu *{$databuku->nama}*,\n\n";
-            $pesan .= "Anda telah terdaftar pada Layanan $kategoriText Kategori *{$databuku->nama_layanan}* - *{$namaLayananDetail}* ";
+            // $pesan .= "Anda telah terdaftar pada Layanan $kategoriText Kategori *{$databuku->nama_layanan}* - *{$namaLayananDetail}* ";
             $pesan .= "Kantor Wilayah Kementerian Hukum Daerah Istimewa Yogyakarta pada $waktu.\n\n";
             $pesan .= "Mohon ditunggu, Petugas Kami akan menghubungi Anda.\n\nTerima Kasih\n\n_Pesan ini dikirim otomatis_";
 
@@ -248,8 +248,8 @@ class PendaftaranController extends Controller
             'layanan' => 'required|exists:layanan_detail,id_layanan_detail',
         ]);
 
-        // DB::beginTransaction();
-        // try {
+        DB::beginTransaction();
+        try {
         $tanggal = now()->format('Y-m-d');
 
         // 🔹 Cek atau buat DataTamu
@@ -314,14 +314,8 @@ class PendaftaranController extends Controller
         // 🔹 Waktu dan format tanggal
         $waktu = now()->locale('id')->isoFormat('dddd, D MMMM Y HH:mm') . ' WIB';
 
-        // 🔹 Tentukan kategori
-        // $kategoriText = match ($validated['kategori']) {
-        //     1 => 'Permohonan Informasi',
-        //     2 => 'Konsultasi',
-        //     default => 'Pengaduan',
-        // };
 
-        $namaLayananDetail = $validated['layanan'] == 9
+            $namaLayananDetail = $validated['layanan'] == 9
             ? $databuku->layanan_lain
             : $databuku->nama_layanan_detail;
 
@@ -353,14 +347,14 @@ class PendaftaranController extends Controller
         // KIRIM VIA HELPER
         kirimFonnte($nomorWA, $pesan);
 
-        // DB::commit();
+            DB::commit();
         // Redirect ke kartu
         return redirect()->route('offline.registration.card', ['encoded_id' => $encodedId])
             ->with('status', 'success');
-        // } catch (\Exception $e) {
-        //     DB::rollBack();
-        //     return back()->with('status', 'error')->withErrors(['msg' => $e->getMessage()]);
-        // }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('status', 'error')->withErrors(['msg' => $e->getMessage()]);
+        }
     }
 
     private function formatNomorWA($nomor)
@@ -400,15 +394,17 @@ class PendaftaranController extends Controller
             ->firstOrFail();
 
         $kode = $data->kode_layanan ?? 'LAIN';
-        $layanan = match ($kode) {
+        $mapping = [
             'KI' => 'Layanan Kekayaan Intelektual',
             'AHU' => 'Layanan Administrasi Hukum Umum',
             'FPHD' => 'Layanan Fasilitasi Produk Hukum Daerah',
             'JDIH' => 'Layanan JDIH',
             'HKM' => 'Layanan Bantuan Hukum',
             'ADM' => 'Layanan Fasilitatif Administratif',
-            default => 'Lainnya',
-        };
+        ];
+
+        $layanan = isset($mapping[$kode]) ? $mapping[$kode] : 'Lainnya';
+
 
         $url = 'kemenkumjogja.id';
 
