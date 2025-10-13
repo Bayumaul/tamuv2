@@ -178,7 +178,7 @@
             <div class="col-md-6 d-flex align-items-center">
                 <img src="{{ asset('img/') }}/logo.png" alt="Logo Kemenkum" height="60" class="me-3" />
                 <div>
-                    <h5 class="logo-text mb-0">Kementerian Hukum dan HAM RI</h5>
+                    <h5 class="logo-text mb-0">Kementerian Hukum RI</h5>
                     <span>Kanwil D.I. Yogyakarta</span>
                 </div>
             </div>
@@ -440,11 +440,11 @@
 
                 // 3. Mulai Polling dan Update Display
                 checkAndProcessCall();
-                updateServiceGrid();
+                // updateServiceGrid();
 
                 // Polling Utama
                 setInterval(checkAndProcessCall, 5000);
-                setInterval(updateServiceGrid, 15000);
+                // setInterval(updateServiceGrid, 15000);
             });
         });
     </script>
