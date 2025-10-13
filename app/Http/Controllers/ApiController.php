@@ -9,7 +9,6 @@ use Carbon\Carbon;
 
 class ApiController extends Controller
 {
-    // ... (metode getPersonalStatus jika Anda menempatkannya di sini)
     public function getPersonalStatus(Request $request)
     {
         $idBuku = $request->input('id_buku');
@@ -106,5 +105,29 @@ class ApiController extends Controller
         }
 
         return response()->json(['status' => 'none', 'nomor' => '---']);
+    }
+
+    public function getEntryDetails($id)
+    {
+        // Cari QueueEntry dengan relasi yang diperlukan
+        $entry = DataBukuTamu::where('id_buku', $id)
+            ->with(['tamu', 'layananDetail.layanan']) // Load relasi Tamu, Layanan Detail, dan Layanan Master
+            ->first();
+
+        if (!$entry || $entry->status_antrean !== 'SELESAI') {
+            // Kita hanya perlu detail jika status sudah SELESAI, jika tidak, tolak.
+            return response()->json(['status' => 'error', 'message' => 'Antrean tidak valid atau belum selesai.'], 403);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'id' => $entry->id_buku,
+                'nama' => $entry->tamu->nama ?? 'N/A',
+                'no_hp' => $entry->tamu->no_hp ?? 'N/A',
+                'layanan' => $entry->layananDetail->layanan->nama_layanan ?? 'N/A',
+                'layanan_detail' => $entry->layananDetail->nama_layanan_detail ?? 'N/A',
+            ]
+        ]);
     }
 }

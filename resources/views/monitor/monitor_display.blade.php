@@ -204,8 +204,10 @@
                 <div class="card card-navy shadow-lg h-100">
                     <div class="card-body p-0 rounded-3 overflow-hidden">
                         <div class="ratio ratio-16x9">
-                            <iframe src="https://www.youtube.com/embed/T-U2_ADY9qM?autoplay=1&mute=1&loop=1&playlist=T-U2_ADY9qM"
-                                title="Video Informasi" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"
+                            <iframe id="info-video"
+                                src="https://www.youtube.com/embed/T-U2_ADY9qM?autoplay=1&mute=1&loop=1&playlist=T-U2_ADY9qM"
+                                title="Video Informasi"
+                                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"
                                 allowfullscreen></iframe>
                         </div>
                     </div>
@@ -228,7 +230,8 @@
         <!-- Running Text -->
         <div class="marquee-wrapper text-center">
             <marquee behavior="scroll" direction="left" class="marquee-text">
-                Selamat datang di layanan antrean Kanwil Kemenkum D.I. Yogyakarta | Mohon jaga ketertiban dan tetap tertib
+                Selamat datang di layanan antrean Kanwil Kemenkum D.I. Yogyakarta | Mohon jaga ketertiban dan tetap
+                tertib
             </marquee>
         </div>
     </div>
@@ -246,6 +249,12 @@
 
         let isSpeaking = false;
         let lastProcessedQueueId = 0;
+
+        const VIDEO_ELEMENT = document.getElementById('info-video');
+        const VOLUME_NORMAL = 1.0; // 100%
+        const VOLUME_DUCKING = 0.2; // 20%
+
+        VIDEO_ELEMENT.volume = 1.0; // Atur volume default saat script dimuat
 
 
         function updateLastActiveDisplay() {
@@ -292,7 +301,7 @@
             audioSequence.push(`${loketTujuan}.mp3`); // Contoh: 2.mp3
 
             isSpeaking = true;
-
+            VIDEO_ELEMENT.volume = VOLUME_DUCKING;
             for (const file of audioSequence) {
                 const audio = new Audio(`${ASSET_URL}/${file}`);
                 await new Promise(resolve => {
@@ -304,12 +313,15 @@
                     });
                 });
             }
+
             isSpeaking = false;
+            VIDEO_ELEMENT.volume = VOLUME_NORMAL;
         }
 
 
         // --- FUNGSI 2: MEMERIKSA ANTREAM PANGGILAN BARU (POLLING) ---
         function checkAndProcessCall() {
+            // console.log('tes check');
             if (isSpeaking) {
                 return;
             }

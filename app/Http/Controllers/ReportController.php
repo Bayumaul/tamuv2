@@ -7,6 +7,7 @@ use App\Models\SurveyLink;
 use App\Models\DataBukuTamu;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use PDF;
 
 class ReportController extends Controller
 {
@@ -57,6 +58,11 @@ class ReportController extends Controller
                 'LEWAT' => '<span class="badge bg-danger">Lewat</span>',
                 default => '<span class="badge bg-secondary">Baru</span>',
             };
+            $tipeBadge = match ($entry->tipe_layanan) {
+                'Online' => '<span class="badge bg-info">Online</span>',
+                'Offline' => '<span class="badge bg-primary">Offline</span>',
+                default => '<span class="badge bg-secondary">--</span>',
+            };
 
             $buttonText = ($entry->status_antrean === 'SELESAI') ? 'Kirim Survei' : 'Antrean Aktif';
 
@@ -67,8 +73,9 @@ class ReportController extends Controller
                 'layanan' => $entry->layananDetail->nama_layanan_detail ?? 'N/A',
                 'nomor_antrean' => $entry->nomor_lengkap,
                 'loket' => $entry->id_loket,
+                'tipe_layanan' => $tipeBadge,
                 'status' => $statusBadge,
-                'aksi' => '<button class="btn btn-sm btn-label-success send-survey-btn" data-id="' . $entry->id . '" ' . ($entry->status_antrean !== 'SELESAI' ? 'disabled' : '') . '>' . $buttonText . '</button>'
+                'aksi' => '<button class="btn btn-sm btn-label-success send-survey-btn" data-id="' . $entry->id_buku . '" ' . ($entry->status_antrean !== 'SELESAI' ? 'disabled' : '') . '>' . $buttonText . '</button>'
             ];
         });
 
@@ -83,23 +90,96 @@ class ReportController extends Controller
     /**
      * Aksi: Mengirim link survei ke nomor WA pelanggan.
      */
-    public function sendSurvey($id)
+    public function sendSurvey(Request $request, $id)
     {
-        $entry = DataBukuTamu::with('tamu')->find($id);
+        $templateId = $request->input('template_id'); // KUNCI: ID template dari Modal
 
+        // Menggunakan Model QueueEntry (Pengganti DataBukuTamu)
+        $entry = DataBukuTamu::with('tamu')->where('id_buku', $id)->first();
+        $template = SurveyLink::find($templateId);
+
+        // --- 1. VALIDASI STATUS DAN TEMPLATE ---
         if (!$entry || $entry->status_antrean !== 'SELESAI') {
-            return response()->json(['status' => 'error', 'message' => 'Survei hanya bisa dikirim untuk layanan yang sudah selesai.']);
+            return response()->json(['status' => 'error', 'message' => 'Survei hanya bisa dikirim setelah layanan Selesai.'], 403);
+        }
+        if (!$template || !$template->is_active) {
+            return response()->json(['status' => 'error', 'message' => 'Template survei tidak valid atau tidak aktif.'], 400);
         }
 
-        // ASUMSI: Link survei Anda
-        $surveyLink = url('/survey/' . base64_encode($entry->id));
-        $nomorWA = $entry->tamu->no_hp;
+        // --- 2. PERSIAPAN DATA PESAN ---
+        $surveyLink = $template->link_url; // Ambil URL survei dari template
+        $nomorWA = $this->formatNomorWA($entry->tamu->no_hp);
+        $namaTamu = $entry->tamu->nama;
 
-        $pesan = "Yth. Bapak/Ibu {$entry->tamu->nama}, terima kasih telah menggunakan layanan Kanwil Kemenkum DIY. Mohon luangkan waktu Anda untuk mengisi survei kepuasan di link ini: {$surveyLink}";
+        // --- 4. KIRIM VIA WA ---
+        Kirimfonnte($nomorWA, $template->caption);
 
-        // Kirim via Fonnte/WA API
-        // $this->Kirimfonnte(['target' => $this->formatNomorWA($nomorWA), 'message' => $pesan]);
+        return response()->json([
+            'status' => 'success',
+            'message' => "Survei '{$template->name}' berhasil dikirim via WhatsApp."
+        ]);
+    }
 
-        return response()->json(['status' => 'success', 'message' => 'Link survei berhasil dikirim via WhatsApp.']);
+
+    private function formatNomorWA($nomor)
+    {
+        $nomor = trim($nomor);
+        if (str_starts_with($nomor, '0')) {
+            return '62' . substr($nomor, 1);
+        }
+        if (str_starts_with($nomor, '+62')) {
+            return substr($nomor, 1);
+        }
+        return $nomor;
+    }
+
+    public function generatePdfReport(Request $request)
+    {
+        // 1. Ambil Data Filter
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $loketId = $request->input('loket');
+
+        $query = DataBukuTamu::with(['tamu', 'layananDetail.layanan', 'lastDisplayCall'])
+            ->whereNotNull('nomor_lengkap');
+
+        // --- Terapkan Filter ---
+        if ($startDate) {
+            $query->whereDate('tanggal', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->whereDate('tanggal', '<=', $endDate);
+        }
+        if ($loketId) {
+            $query->where('id_loket', $loketId);
+        }
+        // ... (Tambahkan filter lain sesuai kebutuhan) ...
+
+        $reports = $query->orderBy('tanggal', 'asc')->get();
+
+        // 2. Persiapan Data untuk View
+        $judul = "Rekap Kunjungan Kanwil Kemenkum DIY";
+        $periode = "Periode: " . ($startDate ? Carbon::parse($startDate)->isoFormat('D MMM YYYY') : 'Awal') .
+            " s.d. " . ($endDate ? Carbon::parse($endDate)->isoFormat('D MMM YYYY') : 'Sekarang');
+
+        $loketMaster = [1 => 'Loket 1', 2 => 'Loket 2', 3 => 'Loket 3', 4 => 'Loket 4'];
+
+
+        $reports = $reports->map(function ($item) {
+            // KUNCI: Lakukan semua format Carbon di Controller!
+            $item->formatted_tanggal = Carbon::parse($item->tanggal)->format('d/m/Y');
+            $item->waktu_panggil_format = ($item->lastDisplayCall && $item->lastDisplayCall->waktu_request)
+                ? Carbon::parse($item->lastDisplayCall->waktu_request)->format('H:i:s')
+                : '-';
+            return $item;
+        });
+
+        // 3. Muat View dan Generate PDF
+        $pdf = PDF::loadView('admin.reports.pdf_template', compact('reports', 'judul', 'periode', 'loketMaster'))
+            ->setPaper('A4', 'portrait'); // Menggunakan kertas A4 portrait
+        // return $reports;
+        $filename = 'Laporan_Kunjungan_' . Carbon::now()->format('Ymd_His') . '.pdf';
+
+        return $pdf->stream($filename);
     }
 }

@@ -53,6 +53,10 @@
     <link rel="stylesheet" href="{{ asset('templates/vuexy/') }}/assets/vendor/css/core.css" />
     <link rel="stylesheet" href="{{ asset('templates/vuexy/') }}/assets/css/demo.css" />
 
+
+
+    <link rel="stylesheet" href="{{ asset('templates/vuexy/') }}/assets/vendor/libs/select2/select2.css" />
+    <link rel="stylesheet" href="{{ asset('templates/vuexy/') }}/assets/vendor/libs/bootstrap-select/bootstrap-select.css" />
     <!-- Vendors CSS -->
 
     <link rel="stylesheet"
@@ -123,6 +127,12 @@
                             <div>Panggilan Antrian</div>
                         </a>
                     </li>
+                    <li class="menu-item {{ request()->is('stats*') ? 'active' : '' }}">
+                        <a href="{{ route('stats.layanan.index') }}" class="menu-link">
+                            <i class="menu-icon icon-base ti tabler-chart-arrows-vertical"></i>
+                            <div>Statistik</div>
+                        </a>
+                    </li>
                     <li class="menu-item {{ request()->is('reports*') ? 'active' : '' }}">
                         <a href="{{ route('reports.visits.index') }}" class="menu-link">
                             <i class="menu-icon icon-base ti tabler-clipboard-data"></i>
@@ -139,6 +149,12 @@
                         <a href="{{ route('users.index') }}" class="menu-link">
                             <i class="menu-icon icon-base ti tabler-users"></i>
                             <div>User</div>
+                        </a>
+                    </li>
+                    <li class="menu-item">
+                        <a href="{{ route('monitor.display') }}" class="menu-link">
+                            <i class="menu-icon icon-base ti tabler-screen-share"></i>
+                            <div>Monitoring</div>
                         </a>
                     </li>
                 </ul>
@@ -249,16 +265,6 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="#">
-                                            <span class="d-flex align-items-center align-middle">
-                                                <i
-                                                    class="flex-shrink-0 icon-base ti tabler-credit-card icon-md me-3"></i><span
-                                                    class="flex-grow-1 align-middle">Billing Plan</span>
-                                                <span class="flex-shrink-0 badge rounded-pill bg-danger">4</span>
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <li>
                                         <div class="dropdown-divider my-1 mx-n2"></div>
                                     </li>
                                     <li>
@@ -339,6 +345,11 @@
 
     <script src="{{ asset('templates/vuexy/') }}/assets/vendor/js/menu.js"></script>
 
+
+    <!-- Vendors JS -->
+    <script src="{{ asset('templates/vuexy/') }}/assets/vendor/libs/select2/select2.js"></script>
+    <script src="{{ asset('templates/vuexy/') }}/assets/vendor/libs/tagify/tagify.js"></script>
+    <script src="{{ asset('templates/vuexy/') }}/assets/vendor/libs/bootstrap-select/bootstrap-select.js"></script>
     <!-- endbuild -->
 
     <!-- Vendors JS -->

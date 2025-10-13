@@ -24,4 +24,15 @@ class DataBukuTamu extends Model
     {
         return $this->belongsTo(LayananDetail::class, 'id_layanan_detail', 'id_layanan_detail');
     }
+    public function lastDisplayCall()
+    {
+        return $this->hasOne(DisplayQueue::class, 'id_buku', 'id_buku')
+            ->latest('waktu_request'); // KUNCI: Mengambil data yang paling baru
+    }
+
+    // Jika Anda hanya ingin relasi standar (menggantikan yang Anda berikan):
+    public function displayQueueEntries()
+    {
+        return $this->hasMany(DisplayQueue::class, 'id_buku', 'id_buku');
+    }
 }

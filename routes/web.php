@@ -3,11 +3,12 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\MonitorController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PendaftaranController;
-use App\Http\Controllers\ReportController;
-use App\Http\Controllers\SurveyController;
+use App\Http\Controllers\LayananStatsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -89,5 +90,9 @@ Route::get('stats/top-services', [DashboardController::class, 'getTopServices'])
 Route::get('reports/visits', [ReportController::class, 'index'])->name('reports.visits.index');
 Route::get('reports/visits/data', [ReportController::class, 'getVisitsData'])->name('reports.visits.data');
 Route::post('reports/send-survey/{id}', [ReportController::class, 'sendSurvey'])->name('reports.send_survey');
+Route::get('/get-entry-details/{id}', [ApiController::class, 'getEntryDetails'])->name('get_entry_details');
+Route::get('reports/pdf', [ReportController::class, 'generatePdfReport'])->name('reports.generate_pdf');
+Route::get('stats/layanan', [LayananStatsController::class, 'index'])->name('stats.layanan.index');
+Route::get('stats/layanan/api', [LayananStatsController::class, 'getLayananData'])->name('api.stats.layanan');
 
 Route::resource('survey', SurveyController::class);

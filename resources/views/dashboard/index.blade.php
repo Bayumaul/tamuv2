@@ -153,8 +153,7 @@
 
 @endsection
 
-@push('script')
-    // File: resources/views/admin/dashboard/monitoring.blade.php (Di dalam @push('scripts'))
+@push('scripts')
 
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
@@ -285,12 +284,12 @@
             success: function(response) {
                 let listHtml = '';
                 response.data.services.forEach((service, index) => {
-                    const iconClass = (index < 2) ? 'ti-star text-warning' : 'ti-file-text';
+                    const iconClass = (index < 2) ? 'star text-warning' : 'file-text';
                     
                     listHtml += `
                         <li class="d-flex align-items-center mb-5">
-                            <div class="me-4">
-                                <span class="badge bg-label-primary rounded p-1_5"><i class="icon-base ti ${iconClass} icon-md"></i></span>
+                            <div class="badge bg-label-secondary text-body p-2 me-4 rounded">
+                              <i class="icon-base ti tabler-star icon-md"></i>
                             </div>
                             <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
                                 <div class="me-2">

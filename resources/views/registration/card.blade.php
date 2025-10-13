@@ -164,7 +164,7 @@
         <h6 class="fw-bold text-secondary mb-3">
             <i class="bi bi-info-circle-fill text-primary me-1"></i> Status Anda
         </h6>
-        <h4 class="fw-bold mb-4 text-primary" id="status-saat-ini">Memuat...</h4>
+        <h4 class="fw-bold mb-4" style="color: #002147" id="status-saat-ini">Memuat...</h4>
 
         <div class="border-top border-bottom py-3 my-3">
             <p class="mb-1 text-muted fw-semibold">

@@ -8,6 +8,7 @@ use App\Models\DataBukuTamu;
 use App\Models\DisplayQueue;
 use Illuminate\Http\Request;
 use App\Models\LayananDetail;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -90,11 +91,8 @@ class DashboardController extends Controller
 
     public function call()
     {
-        // Pastikan pengguna sudah terotentikasi dan memiliki id_loket
-        $loketId = 2;
-
-        // Logika untuk mendapatkan nama loket (Contoh: Loket 2 - Pendaftaran Merek)
-        $namaLoket = 'Loket 2';
+        $loketId = loket_user();
+        $namaLoket = 'Loket ' . $loketId;
 
         return view('dashboard.call', compact('loketId', 'namaLoket'));
     }
@@ -107,7 +105,7 @@ class DashboardController extends Controller
     public function getQueueStatus(Request $request)
     {
         // Mengambil ID Loket dari sesi pengguna yang login
-        $loketId = 4;
+        $loketId = loket_user();
         $today = Carbon::today()->toDateString();
         // 1. Ambil Antrean Sedang DIPANGGIL
         $currentCall = DataBukuTamu::where('tanggal', $today)
@@ -139,11 +137,11 @@ class DashboardController extends Controller
      */
     public function callNext(Request $request)
     {
-        $loketId = 4;
+        $loketId = loket_user();
         $today = Carbon::today()->toDateString();
 
-        // DB::beginTransaction();
-        // try {
+        DB::beginTransaction();
+        try {
         // 1. CARI & KUNCI ANTREAM BERIKUTNYA (MENUNGGU)
         // Menggunakan lockForUpdate() untuk mencegah bentrok/perebutan antrean
         $nextEntry = DataBukuTamu::where('id_loket', $loketId)
@@ -178,11 +176,11 @@ class DashboardController extends Controller
             'nomor' => $nextEntry->nomor_lengkap,
             'id_buku' => $nextEntry->id
         ]);
-        // } catch (\Exception $e) {
-        //     DB::rollBack();
-        //     // Log::error("Call Next Gagal: " . $e->getMessage());
-        //     return response()->json(['status' => 'error', 'message' => 'Gagal memproses panggilan karena error server.']);
-        // }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // Log::error("Call Next Gagal: " . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => 'Gagal memproses panggilan karena error server.']);
+        }
     }
 
     // --- Aksi Menyelesaikan Layanan ---
@@ -195,7 +193,7 @@ class DashboardController extends Controller
         $idBuku = $request->input('id_buku_saat_ini');
 
         // Pastikan hanya antrean yang berstatus DIPANGGIL yang bisa diselesaikan
-        $updated = DataBukuTamu::where('id', $idBuku)
+        $updated = DataBukuTamu::where('id_buku', $idBuku)
             ->where('id_loket', $loketId)
             ->where('status_antrean', 'DIPANGGIL')
             ->update(['status_antrean' => 'SELESAI']);

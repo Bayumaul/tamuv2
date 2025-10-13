@@ -1,6 +1,16 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+
+if (!function_exists('loket_user')) {
+    function loket_user()
+    {
+        return Auth::check() ? Auth::user()->id_loket : '0';
+    }
+}
+
+
 
 if (!function_exists('kirimFonnte')) {
     function kirimFonnte($no, $message)

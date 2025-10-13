@@ -1,7 +1,4 @@
-{{-- File: resources/views/dashboard/petugas_dashboard.blade.php (FINAL CODE) --}}
-
 @extends('layouts.app')
-{{-- Pastikan layouts.app Anda meng-include aset Vuexy/Bootstrap --}}
 
 @section('title', 'Dashboard Petugas - ' . $namaLoket)
 
