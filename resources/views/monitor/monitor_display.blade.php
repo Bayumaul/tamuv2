@@ -414,10 +414,10 @@
             updateLoketStatus();
 
             // Polling utama untuk panggilan baru (5 detik)
-            setInterval(checkAndProcessCall, 5000);
+            setInterval(checkAndProcessCall, 15000);
 
             // Polling untuk status loket di bawah (10 detik)
-            setInterval(updateLoketStatus, 10000);
+            setInterval(updateLoketStatus, 20000);
         });
         // --- INISIASI ---
         $(document).ready(function() {
