@@ -115,7 +115,7 @@ class DashboardController extends Controller
             ->first();
 
         // 2. Ambil 5 Antrean MENUNGGU Berikutnya
-        $waitingList = DataBukuTamu::where('tanggal', $today)
+        $waitingList = DataBukuTamu::with('layananDetail')->where('tanggal', $today)
             ->where('id_loket', $loketId)
             ->where('status_antrean', 'MENUNGGU')
             ->orWhere('status_antrean', 'LEWAT')

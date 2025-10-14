@@ -22,14 +22,14 @@ use App\Http\Controllers\LayananStatsController;
 |
 */
 
+// --- 1. ROUTE PUBLIK / PENDAFTARAN ---
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('/offline', function () {
-    return view('registrasion.offline');
-});
 
 Route::get('/validatenik', [PendaftaranController::class, 'validatenik'])->name('validatenik');
+
+// Pendaftaran Online
 Route::get('/online', [PendaftaranController::class, 'online'])->name('online');
 Route::post('/online-registration', [PendaftaranController::class, 'onlineRegistration'])->name('online.registration');
 Route::get('/online-registration/card/{encoded_id}', [PendaftaranController::class, 'showCard'])
@@ -40,33 +40,12 @@ Route::post('/offline-registration', [PendaftaranController::class, 'offlineRegi
 Route::get('/offline-registration/card/{encoded_id}', [PendaftaranController::class, 'showCard'])
     ->name('offline.registration.card');
 
-Route::get('/call', [DashboardController::class, 'call'])->name('call');
-
-// API Polling Status (5s)
-Route::get('/api/dashboard/status', [DashboardController::class, 'getQueueStatus'])->name('api.dashboard.status');
-
-// Aksi Panggil Antrean Berikutnya
-Route::post('/api/dashboard/call-next', [DashboardController::class, 'callNext'])->name('api.dashboard.call_next');
-
-// Aksi Selesaikan Layanan
-Route::post('/api/dashboard/complete', [DashboardController::class, 'completeService'])->name('api.dashboard.complete');
-
-// Aksi Panggil Ulang
-Route::post('/api/dashboard/reissue', [DashboardController::class, 'reissueCall'])->name('api.dashboard.reissue');
-
-// Aksi Lewati Antrean
-Route::post('/api/dashboard/skip', [DashboardController::class, 'skipCall'])->name('api.dashboard.skip');
-
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
-
-
-require __DIR__ . '/auth.php';
-
-
-// --- ROUTE MONITOR TV PUBLIK ---
-// Route untuk menampilkan View Monitor
-Route::get('/monitor/display', [MonitorController::class, 'showDisplay'])->name('monitor.display');
-Route::get('/monitor/public', [MonitorController::class, 'showDisplayPublic'])->name('monitor.public');
+// --- 2. ROUTE MONITOR & PUBLIC API (Tanpa Otentikasi) ---
+Route::prefix('monitor')->name('monitor.')->group(function () {
+    // Tampilan Monitor Display (TV)
+    Route::get('/display', [MonitorController::class, 'showDisplay'])->name('display');
+    Route::get('/public', [MonitorController::class, 'showDisplayPublic'])->name('public');
+});
 
 // API untuk Display Processor (Mengambil panggilan baru & Mark Announced)
 Route::prefix('api/display')->group(function () {
@@ -74,29 +53,68 @@ Route::prefix('api/display')->group(function () {
     Route::post('/processor', [MonitorController::class, 'processDisplay']); // Menerima sinyal POST dari JS
 });
 
-// API Status Loket (Digunakan oleh Monitor Display untuk status Loket 1-4)
-Route::get('/api/public/loket-status', [ApiController::class, 'getLoketStatus'])->name('api.public.loket_status');
-Route::get('/api/public/last-active-call', [ApiController::class, 'getLastActiveCall'])->name('api.public.last_active_call');
-Route::get('/api/public/personal-status', [ApiController::class, 'getPersonalStatus'])->name('api.public.personal_status');
-// Route::get('/personal-status', [ApiController::class, 'getPersonalStatus'])->name('api.public.personal_status');
+// API Publik (Diakses oleh Monitor Display, Kartu Antrean, dll.)
+Route::prefix('api/public')->name('api.public.')->group(function () {
+    Route::get('/loket-status', [ApiController::class, 'getLoketStatus'])->name('loket_status');
+    Route::get('/last-active-call', [ApiController::class, 'getLastActiveCall'])->name('last_active_call');
+    Route::get('/personal-status', [ApiController::class, 'getPersonalStatus'])->name('personal_status');
 
-Route::get('users/data', [UserController::class, 'getUsersData'])->name('users.data');
-Route::resource('users', UserController::class);
+    // API Grid Status (untuk halaman status Kanwil JATIM style)
+    Route::get('/grid-status', [ApiController::class, 'getGridServiceStatus'])->name('grid_status');
+});
 
-Route::get('stats/harian', [DashboardController::class, 'getDailyStats'])->name('stats.harian');
-Route::get('stats/weekly-trend', [DashboardController::class, 'getWeeklyTrend'])->name('stats.weekly_trend');
-Route::get('stats/loket-dist', [DashboardController::class, 'getServiceDistribution'])->name('stats.loket_dist');
-Route::get('stats/top-services', [DashboardController::class, 'getTopServices'])->name('stats.top_services');
+// --- 3. ROUTE DASHBOARD PETUGAS (Dilindungi Middleware 'auth') ---
+Route::middleware(['auth'])->group(function () {
+    // Tampilan Dashboard Utama
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+    // Tampilan Dashboard Panggilan (Alternatif index)
+    Route::get('/call', [DashboardController::class, 'call'])->name('call');
+    // --- API PENGENDALI PANGGILAN (Dashboard) ---
+    Route::prefix('api/dashboard')->name('api.dashboard.')->group(function () {
+        Route::get('/status', [DashboardController::class, 'getQueueStatus'])->name('status');
+        Route::post('/call-next', [DashboardController::class, 'callNext'])->name('call_next');
+        Route::post('/complete', [DashboardController::class, 'completeService'])->name('complete');
+        Route::post('/reissue', [DashboardController::class, 'reissueCall'])->name('reissue');
+        Route::post('/skip', [DashboardController::class, 'skipCall'])->name('skip');
+    });
 
-Route::get('reports/visits', [ReportController::class, 'index'])->name('reports.visits.index');
-Route::get('reports/visits/data', [ReportController::class, 'getVisitsData'])->name('reports.visits.data');
-Route::post('reports/send-survey/{id}', [ReportController::class, 'sendSurvey'])->name('reports.send_survey');
-Route::get('/get-entry-details/{id}', [ApiController::class, 'getEntryDetails'])->name('get_entry_details');
-Route::get('reports/pdf', [ReportController::class, 'generatePdfReport'])->name('reports.generate_pdf');
-Route::get('stats/layanan', [LayananStatsController::class, 'index'])->name('stats.layanan.index');
-Route::get('stats/layanan/api', [LayananStatsController::class, 'getLayananData'])->name('api.stats.layanan');
+    Route::get('users/data', [UserController::class, 'getUsersData'])->name('users.data');
+    Route::resource('users', UserController::class);
 
-Route::resource('survey', SurveyController::class);
 
-Route::get('admin/notif/recap', [AdminController::class, 'showRecapForm'])->name('admin.notif.form');
-Route::post('admin/notif/send', [AdminController::class, 'sendRecapReport'])->name('admin.notif.send');
+    // A. LAPORAN KUNJUNGAN
+    Route::prefix('reports')->name('reports.')->group(function () {
+        // Laporan Tabel (Index)
+        Route::get('/visits', [ReportController::class, 'index'])->name('visits.index');
+        // API Datatables (HARUS DI ATAS RESOURCE ROUTE)
+        Route::get('/visits/data', [ReportController::class, 'getVisitsData'])->name('visits.data');
+        // Aksi Pengiriman Survei
+        Route::post('/send-survey/{id}', [ReportController::class, 'sendSurvey'])->name('send_survey');
+        // Generate PDF
+        Route::get('/pdf', [ReportController::class, 'generatePdfReport'])->name('generate_pdf');
+
+        // API Detail Entry untuk Modal (Dipindahkan ke dalam Auth/Admin)
+    });
+    Route::get('/get-entry-details/{id}', [ApiController::class, 'getEntryDetails'])->name('get_entry_details');
+
+    // B. MONITORING & STATISTIK (Grafik)
+    Route::prefix('stats')->name('stats.')->group(function () {
+        Route::get('/layanan', [LayananStatsController::class, 'index'])->name('layanan.index');
+        // Route::get('/layanan/api', [LayananStatsController::class, 'getLayananData'])->name('layanan.api');
+
+        // API Global Dashboard
+        Route::get('/harian', [DashboardController::class, 'getDailyStats'])->name('harian');
+        Route::get('/weekly-trend', [DashboardController::class, 'getWeeklyTrend'])->name('weekly_trend');
+        Route::get('/loket-dist', [DashboardController::class, 'getServiceDistribution'])->name('loket_dist');
+        Route::get('/top-services', [DashboardController::class, 'getTopServices'])->name('top_services');
+    });
+    Route::get('stats/layanan/api', [LayananStatsController::class, 'getLayananData'])->name('api.stats.layanan');
+
+    Route::resource('survey', SurveyController::class);
+
+    Route::get('admin/notif/recap', [AdminController::class, 'showRecapForm'])->name('admin.notif.form');
+    Route::post('admin/notif/send', [AdminController::class, 'sendRecapReport'])->name('admin.notif.send');
+});
+
+// --- 4. FILE AUTH BAWAAN LARAVEL BREEZE ---
+require __DIR__ . '/auth.php';

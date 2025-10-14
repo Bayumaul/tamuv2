@@ -1,7 +1,7 @@
 <!doctype html>
 
-<html lang="en" class="layout-wide" dir="ltr" data-skin="default"
-    data-assets-path="{{ asset('templates/vuexy/') }}/assets/" data-template="vertical-menu-template"
+<html lang="en" class="layout-navbar-fixed layout-menu-fixed layout-wide" dir="ltr" data-skin="default"
+    data-assets-path="{{ asset('templates/vuexy/') }}/assets/" data-template="vertical-menu-template-starter"
     data-bs-theme="light">
 
 <head>
@@ -9,12 +9,13 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
-    <title>Antrean Kemenkum</title>
-
+    <title>
+        @yield('title') &bull; Antrean Kanwil DIY
+    </title>
     <meta name="description" content="" />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ asset('templates/vuexy/') }}/assets/img/favicon/favicon.ico" />
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('templates/sash/') }}/images/logo.png" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -35,6 +36,10 @@
     <link rel="stylesheet" href="{{ asset('templates/vuexy/') }}/assets/vendor/css/core.css" />
     <link rel="stylesheet" href="{{ asset('templates/vuexy/') }}/assets/css/demo.css" />
 
+
+
+    <link rel="stylesheet" href="{{ asset('templates/vuexy/') }}/assets/vendor/libs/select2/select2.css" />
+    <link rel="stylesheet" href="{{ asset('templates/vuexy/') }}/assets/vendor/libs/bootstrap-select/bootstrap-select.css" />
     <!-- Vendors CSS -->
 
     <link rel="stylesheet"
@@ -54,6 +59,15 @@
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
 
     <script src="{{ asset('templates/vuexy/') }}/assets/js/config.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet"
+        href="{{ asset('templates/vuexy/') }}/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
+    <link rel="stylesheet"
+        href="{{ asset('templates/vuexy/') }}/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
+    {{-- <link rel="stylesheet" href="{{ asset('templates/vuexy/') }}/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" /> --}}
+    <link rel="stylesheet" href="{{ asset('templates/vuexy/') }}/assets/vendor/libs/flatpickr/flatpickr.css" />
+    <!-- Row Group CSS -->
+    {{-- <link rel="stylesheet" href="{{ asset('templates/vuexy/') }}/assets/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" /> --}}
 </head>
 
 <body>

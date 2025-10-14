@@ -39,21 +39,43 @@
             padding: 10px 15px;
             font-size: 1.1rem;
         }
+
+        /* ... CSS Lainnya ... */
+        /* Styling untuk item antrean menunggu yang baru */
+        .queue-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+
+        .queue-item:last-child {
+            border-bottom: none;
+        }
+
+        .queue-number-large {
+            font-size: 1.8rem;
+            /* Lebih besar dari sebelumnya */
+            font-weight: 700;
+            color: #007bff;
+            /* Primary color */
+        }
+
+        .queue-badge-urutan {
+            min-width: 80px;
+        }
+
+        .list-group-item.text-center.text-muted.py-5 {
+            font-style: italic;
+            color: #6c757d !important;
+        }
+
+        /* Optional: Sedikit hover effect */
+        .queue-item:hover {
+            background-color: #f8f9fa;
+        }
     </style>
 
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="text-primary">{{ $namaLoket }}</h1>
-            <p class="text-end">
-                Masuk sebagai: <strong>{{ Auth::user()->username ?? 'Petugas' }}</strong> |
-                <a href="{{ route('logout') }}"
-                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
-            </p>
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                @csrf
-            </form>
-        </div>
-        <hr>
+    <div class="mt-5">
 
         {{-- Input Tersembunyi --}}
         <input type="hidden" id="loket_id" value="{{ $loketId }}">
@@ -66,7 +88,7 @@
                     <div class="card-header bg-primary text-white">
                         Pusat Kontrol Layanan
                     </div>
-                    <div class="card-body text-center">
+                    <div class="card-body text-center mt-4">
                         <div class="current-antrean" id="current_antrean_box">
                             <h5 class="text-muted">Antrean Aktif Saat Ini</h5>
                             <h1 class="current-number idle" id="current_call_display">---</h1>
@@ -108,9 +130,15 @@
                     <div class="card-header bg-info text-white">
                         Daftar Antrean Menunggu
                     </div>
-                    <ul class="list-group list-group-flush" id="waiting_list_display" style="min-height: 480px;">
-                        <li class="list-group-item text-center text-muted">Memuat daftar antrean...</li>
-                    </ul>
+                    {{-- Menghapus class list-group-flush dari ul, dan membungkusnya dalam div.card-body untuk padding --}}
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush overflow-auto" id="waiting_list_display"
+                            style="min-height: 480px; max-height: 480px;">
+                            <li class="list-group-item text-center text-muted py-5">
+                                <i class="fe fe-loader fe-spin me-2"></i> Memuat daftar antrean...
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -169,18 +197,31 @@
                     $('#btn_call_next').prop('disabled', !hasWaiting &&
                         isDisabled); // Aktif jika ada waiting OR sudah ada yang dipanggil
 
-                    // ... (Lanjutan kode update Daftar Tunggu) ...
                     let htmlList = '';
                     if (hasWaiting) {
+                        console.log(response.waiting);
                         $.each(response.waiting, function(index, antrean) {
-                            htmlList += `<li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span class="fs-4 fw-semibold text-primary">${antrean.nomor_lengkap}</span>
-                                <span class="badge bg-info rounded-pill">Urutan ${index + 1}</span>
-                             </li>`;
+                            htmlList += `
+                                        <li class="list-group-item d-flex justify-content-between align-items-center queue-item">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fe fe-users me-3 text-muted"></i>
+                                                <div>
+                                                    <span class="d-block text-uppercase text-muted" style="font-size: 0.8rem;">Nomor Antrean</span>
+                                                    <span class="queue-number-large">${antrean.nomor_lengkap}</span>
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <span class="badge bg-primary-light text-white p-2 fw-bold queue-badge-urutan">
+                                                    Urutan ${index + 1}
+                                                </span>
+                                                <span class="d-block text-muted" style="font-size: 0.75rem;">(${antrean.layanan_detail.nama_layanan_detail || 'Layanan'})</span>
+                                            </div>
+                                        </li>
+                                    `;
                         });
                     } else {
                         htmlList =
-                            '<li class="list-group-item text-center text-muted py-5">Tidak ada antrean menunggu saat ini.</li>';
+                            '<li class="list-group-item text-center text-muted py-5"><i class="fe fe-check-circle me-2"></i> Semua antrean telah diproses.</li>';
                     }
                     $('#waiting_list_display').html(htmlList);
                 },

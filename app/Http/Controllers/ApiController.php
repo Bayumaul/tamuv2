@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
+use App\Models\Layanan;
+use App\Models\QueueEntry;
 use App\Models\DataBukuTamu;
 use Illuminate\Http\Request;
-use App\Models\QueueEntry;
-use Carbon\Carbon;
 
 class ApiController extends Controller
 {
@@ -128,6 +129,37 @@ class ApiController extends Controller
                 'layanan' => $entry->layananDetail->layanan->nama_layanan ?? 'N/A',
                 'layanan_detail' => $entry->layananDetail->nama_layanan_detail ?? 'N/A',
             ]
+        ]);
+    }
+
+    public function getGridServiceStatus()
+    {
+        $today = Carbon::today()->toDateString();
+        $statusGrid = [];
+
+        // Ambil semua Layanan utama (KI, AHU, FPHD, dll.)
+        $services = Layanan::all();
+
+        foreach ($services as $service) {
+            $lastEntry = DataBukuTamu::where('tanggal', $today)
+                ->where('id_layanan', $service->id_layanan)
+                ->whereIn('status_antrean', ['DIPANGGIL', 'SELESAI'])
+                ->select('nomor_lengkap')
+                ->orderBy('antrian', 'desc')
+                ->first();
+
+            $nomorTerakhir = $lastEntry ? $lastEntry->nomor_lengkap : ($service->kode_layanan . '-000');
+
+            $statusGrid[] = [
+                'kode' => $service->kode_layanan,
+                'nama' => $service->nama_layanan,
+                'nomor_terakhir' => $nomorTerakhir
+            ];
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'grid_data' => $statusGrid
         ]);
     }
 }

@@ -1,167 +1,162 @@
-{{-- File: resources/views/monitor/public_monitor.blade.php (RESPONSIVE) --}}
 @extends('layouts.master') 
 
-@section('title', 'Monitor Antrean Publik')
+@section('title', 'Status Antrean Publik Per Layanan')
 
 @section('content')
 <style>
-    /* Tambahan Styling Responsif */
+    /* 1. WARNA & TEMA */
+    .bg-navy { background-color: #002147 !important; color: white; }
+    .text-navy { color: #002147 !important; }
+    .bg-emas { background-color: #FFC107 !important; color: #002147; }
+    .text-emas { color: #FFC107 !important; }
+
+    /* 2. CARD MODERN & KETERBACAAN */
     .service-grid-card {
-        min-height: 120px;
-        transition: transform 0.2s;
+        min-height: 150px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        position: relative;
+    }
+    .service-grid-card.active-call {
+        border-color: #28a545; /* Border Hijau saat aktif */
+        box-shadow: 0 4px 10px rgba(40, 165, 69, 0.2);
+    }
+    .card-header-custom {
+        background-color: #f7f7f7;
+        padding: 10px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border-bottom: 1px solid #eee;
     }
     .grid-number {
-        font-size: 2.2rem; /* Lebih kecil agar muat di ponsel */
-        font-weight: 800;
+        font-size: 2.8rem; /* Lebih besar dan berani */
+        font-weight: 900;
         line-height: 1.2;
+        margin-top: 5px;
     }
+    .icon-overlay {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        opacity: 0.1;
+        font-size: 50px;
+    }
+    .text-success-custom { color: #28a545 !important; }
+
     @media (max-width: 768px) {
-        .grid-number {
-            font-size: 1.8rem;
-        }
-        .main-call-display {
-             font-size: 3rem !important;
-        }
+        .grid-number { font-size: 2rem; }
     }
 </style>
 
-<div class="row">
-    <div class="col-12">
-        {{-- Banner Info/Header --}}
-        <div class="alert alert-warning p-3 d-flex flex-wrap justify-content-between align-items-center">
-            <h5 class="mb-0 text-dark">Monitor Status Antrean Kanwil Kemenkum DIY</h5>
-            <span class="badge bg-dark mt-2 mt-sm-0" id="clock-display">Memuat Waktu...</span>
-        </div>
-    </div>
-</div>
+<div class="container py-4">
 
-{{-- === 1. BAGIAN UTAMA: PANGGILAN SUARA AKTIF (Paling Atas di Ponsel) === --}}
-<div class="row match-height">
-    <div class="col-12 mb-3">
-        <div id="main-call-card" class="card bg-info text-white shadow-lg h-100">
-            <div class="card-body text-center p-4">
-                <h4 class="fw-bolder text-white">NOMOR ANTRIAN YANG DIPANGGIL</h4>
-                <h1 id="currentNumber" class="main-call-display fw-bold text-warning">---</h1>
-                <h4 id="currentLoket" class="fw-bold mt-1"></h4>
+    {{-- HEADER KEMENKUM DIY (FIXED BAR) --}}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-navy text-white shadow-lg rounded-3">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0 text-white fw-bold">
+                        <img src="{{ asset('img/logo.png') }}" alt="Logo" style="height: 30px;" class="me-2">
+                        STATUS ANTRIAN KANWIL KEMENKUM DIY
+                    </h4>
+                    <div class="text-end">
+                        <span class="d-block badge bg-emas text-navy fw-bold" id="clock-display">Memuat Waktu...</span>
+                        <small class="text-white-50">Waktu Lokal</small>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
+    
+    {{-- BAR INFORMASI DAN UPDATE TERAKHIR --}}
+    <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded shadow-sm border-start border-3 border-warning">
+        <div class="text-dark fw-bold">
+            <i class="menu-icon icon-base ti tabler-info-circle me-2 text-warning"></i> Nomor Antrean Terakhir Diproses:
+        </div>
+        <small class="last-update-time text-muted">
+            Update: <strong id="last-updated-display">--:--:--</strong>
+        </small>
+    </div>
 
-{{-- === 2. GRID STATUS LAYANAN (RESPONSIVE) === --}}
-<h4 class="px-3 mb-3 text-secondary">Status Terakhir Per Layanan:</h4>
-<div class="row" id="serviceGrid">
-    {{-- Cards Layanan akan di-render di sini oleh JavaScript --}}
-</div>
+    {{-- === GRID STATUS LAYANAN === --}}
+    <div class="row g-4" id="serviceGrid">
+        {{-- Placeholder Loading --}}
+        <div class="col-12 text-center py-5" id="loading-placeholder">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2">Memuat data status layanan...</p>
+        </div>
+        {{-- Data Cards akan di-render di sini oleh JavaScript --}}
+    </div>
 
-<div class="bg-secondary text-white mt-3 py-2 px-3">
-    <marquee style="font-size: 1.2rem; font-weight: bold; padding: 5px;">
-        Mohon siapkan dokumen Anda sebelum dipanggil | Selamat datang di Kanwil Kemenkum DIY | Jaga ketertiban ruang tunggu
-    </marquee>
 </div>
 
 @endsection
 
 @push('scripts')
+<script src="{{ asset('sash/js/jquery.min.js') }}"></script> 
 <script>
-    // URL API Laravel
-    const API_PROCESSOR = "{{ route('api.display.processor') }}";
-    const API_LAST_ACTIVE = "{{ route('api.public.last_active_call') }}";
-    const API_GRID_STATUS = "{{ route('api.public.last_active_call') }}";
+    const API_GRID_STATUS = "{{ route('api.public.grid_status') }}";
 
-    let isSpeaking = false;
-    let lastProcessedQueueId = 0;
+    // Fungsi untuk memetakan icon (Tabler Icons)
+    function getServiceIcon(kode) {
+        switch (kode) {
+            case 'KI': return 'tool'; 
+            case 'AHU': return 'building-bank';
+            case 'FPHD': return 'file-invoice';
+            case 'JDIH': return 'book';
+            case 'HKM': return 'users';
+            case 'ADM': return 'clipboard-list';
+            default: return 'help';
+        }
+    }
 
-    // --- FUNGSI UTAMA: UPDATE GRID LAYANAN (Responsive Rendering) ---
+    // --- FUNGSI UTAMA: UPDATE GRID LAYANAN ---
     function updateServiceGrid() {
         $.ajax({
             url: API_GRID_STATUS,
             method: 'GET',
             dataType: 'json',
             success: function(response) {
-                if (response.status === 'success') {
-                    let htmlContent = '';
-                    response.grid_data.forEach(item => {
-                        // Tentukan kelas CSS untuk warna kartu
-                        const isIdle = item.nomor_terakhir.endsWith('-000');
-                        const cardClass = isIdle ? 'bg-light' : 'bg-success text-white';
-                        const numberColor = isIdle ? 'text-dark' : 'text-warning';
-                        
-                        // Gunakan col-12 di ponsel, col-md-4 di tablet, col-lg-3 di desktop
-                        htmlContent += `
-                            <div class="col-6 col-md-4 col-lg-3 mb-3">
-                                <div class="card text-center shadow-sm service-grid-card ${cardClass}">
-                                    <div class="card-body p-2">
-                                        <h6 class="mb-1 antrian-prefix fw-bold">${item.kode}</h6>
-                                        <small class="d-block mb-1 text-truncate">${item.nama}</small>
-                                        <p class="grid-number ${numberColor}">${item.nomor_terakhir}</p>
-                                    </div>
+                $('#loading-placeholder').hide();
+                if (response.status !== 'success') return;
+                
+                let htmlContent = '';
+                response.grid_data.forEach(item => {
+                    const isIdle = item.nomor_terakhir.endsWith('-000');
+                    // Tentukan kelas CSS
+                    const cardClass = isIdle ? 'bg-white' : 'bg-light active-call'; 
+                    const numberColorClass = isIdle ? 'text-warning' : 'text-success-custom'; // Emas saat idle, Hijau saat aktif
+                    const iconColorClass = isIdle ? 'text-navy' : 'text-success-custom'; 
+                    
+                    htmlContent += `
+                        <div class="col-6 col-md-4 col-lg-3 mb-2">
+                            <div class="card text-center shadow-sm service-grid-card ${cardClass}">
+                                <div class="card-header-custom text-uppercase text-navy text-truncate">
+                                    ${item.nama}
+                                </div>
+                                <div class="card-body p-3">
+                                    
+                                    {{-- Icon Overlay --}}
+                                    <i class="menu-icon icon-base ti tabler-${getServiceIcon(item.kode)} icon-overlay text-emas"></i>
+                                    
+                                    {{-- Nomor Antrean --}}
+                                    <p class="grid-number ${numberColorClass}">${item.nomor_terakhir}</p>
+                                    
+                                    <span class="badge ${isIdle ? 'bg-light text-navy' : 'bg-success text-white'}">
+                                        <i class="menu-icon icon-base ti tabler-${isIdle ? 'clock' : 'phone-call'} me-1"></i> 
+                                        ${isIdle ? 'BELUM ADA PANGGILAN' : 'SEDANG DIPROSES'}
+                                    </span>
                                 </div>
                             </div>
-                        `;
-                    });
-                    $('#serviceGrid').html(htmlContent);
-                }
-            }
-        });
-    }
+                        </div>
+                    `;
+                });
+                $('#serviceGrid').html(htmlContent);
 
-    // --- FUNGSI PANGGILAN UTAMA (checkAndProcessCall) ---
-    function checkAndProcessCall() {
-        if (isSpeaking) return;
-
-        $.ajax({
-            url: API_PROCESSOR, 
-            method: 'GET',
-            dataType: 'json',
-            data: { action: 'get_new' },
-            success: function(response) {
-                if (response.status === 'new_call') {
-                    // LOGIKA PANGGILAN AKTIF
-                    const data = response.data;
-                    if (data.id === lastProcessedQueueId) return; 
-
-                    lastProcessedQueueId = data.id; 
-
-                    $('#main-call-card').removeClass('bg-info').addClass('bg-success');
-                    $('#currentNumber').text(data.nomor_lengkap);
-                    $('#currentLoket').text(`SEGERA MENUJU LOKET ${data.loket_pemanggil}`);
-
-                    // [Lanjutkan dengan playAudioSequence(data.nomor_lengkap, data.loket_pemanggil) di sini]
-
-                    // Setelah simulasi suara:
-                    new Promise(resolve => setTimeout(resolve, 5000)).then(() => {
-                        $.post(API_PROCESSOR, { _token: '{{ csrf_token() }}', action: 'mark_announced', queue_id: data.id });
-                        $('#main-call-card').removeClass('bg-success').addClass('bg-info');
-                        updateServiceGrid(); 
-                    });
-
-                } else {
-                    // Jika IDLE, tampilkan nomor terakhir yang aktif
-                    updateLastActiveDisplay();
-                }
-            }
-        });
-    }
-    
-    // --- FUNGSI UPDATE NOMOR SAAT IDLE ---
-    function updateLastActiveDisplay() {
-         $.ajax({
-            url: API_LAST_ACTIVE, 
-            method: 'GET',
-            dataType: 'json',
-            success: function(response) {
-                if (!isSpeaking) {
-                    if (response.status === 'success') {
-                        $('#currentNumber').text(response.nomor);
-                        $('#currentLoket').text(`Terakhir Dipanggil: Loket ${response.loket}`);
-                        $('#main-call-card').removeClass('bg-success').addClass('bg-info');
-                    } else {
-                        $('#currentNumber').text('---');
-                        $('#currentLoket').text('Belum ada panggilan hari ini');
-                        $('#main-call-card').removeClass('bg-success').addClass('bg-warning');
-                    }
-                }
+                // Kunci: Update timestamp setelah data berhasil dimuat
+                $('#last-updated-display').text(new Date().toLocaleTimeString('id-ID', { hour12: false }));
             }
         });
     }
@@ -169,7 +164,7 @@
     // --- FUNGSI JAM REALTIME ---
     function updateClock() {
         const now = new Date();
-        const options = { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit",};
+        const options = { weekday: "long", year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit",};
         document.getElementById("clock-display").textContent = now.toLocaleDateString("id-ID", options);
     }
     
@@ -179,7 +174,7 @@
         updateServiceGrid();
         
         setInterval(updateClock, 1000);
-        setInterval(checkAndProcessCall, 5000); 
+        // Polling setiap 15 detik untuk update status
         setInterval(updateServiceGrid, 15000); 
     });
 </script>
