@@ -104,7 +104,6 @@ class DashboardController extends Controller
      */
     public function getQueueStatus(Request $request)
     {
-        // Mengambil ID Loket dari sesi pengguna yang login
         $loketId = loket_user();
         $today = Carbon::today()->toDateString();
         // 1. Ambil Antrean Sedang DIPANGGIL

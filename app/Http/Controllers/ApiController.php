@@ -110,13 +110,11 @@ class ApiController extends Controller
 
     public function getEntryDetails($id)
     {
-        // Cari QueueEntry dengan relasi yang diperlukan
         $entry = DataBukuTamu::where('id_buku', $id)
-            ->with(['tamu', 'layananDetail.layanan']) // Load relasi Tamu, Layanan Detail, dan Layanan Master
+            ->with(['tamu', 'layananDetail.layanan'])
             ->first();
 
         if (!$entry || $entry->status_antrean !== 'SELESAI') {
-            // Kita hanya perlu detail jika status sudah SELESAI, jika tidak, tolak.
             return response()->json(['status' => 'error', 'message' => 'Antrean tidak valid atau belum selesai.'], 403);
         }
 
@@ -137,7 +135,6 @@ class ApiController extends Controller
         $today = Carbon::today()->toDateString();
         $statusGrid = [];
 
-        // Ambil semua Layanan utama (KI, AHU, FPHD, dll.)
         $services = Layanan::all();
 
         foreach ($services as $service) {

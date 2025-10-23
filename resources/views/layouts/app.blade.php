@@ -53,10 +53,9 @@
     <link rel="stylesheet" href="{{ asset('templates/vuexy/') }}/assets/vendor/css/core.css" />
     <link rel="stylesheet" href="{{ asset('templates/vuexy/') }}/assets/css/demo.css" />
 
-
-
     <link rel="stylesheet" href="{{ asset('templates/vuexy/') }}/assets/vendor/libs/select2/select2.css" />
-    <link rel="stylesheet" href="{{ asset('templates/vuexy/') }}/assets/vendor/libs/bootstrap-select/bootstrap-select.css" />
+    <link rel="stylesheet"
+        href="{{ asset('templates/vuexy/') }}/assets/vendor/libs/bootstrap-select/bootstrap-select.css" />
     <!-- Vendors CSS -->
 
     <link rel="stylesheet"
@@ -76,7 +75,9 @@
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
 
     <script src="{{ asset('templates/vuexy/') }}/assets/js/config.js"></script>
-    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {{-- <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script> --}}
+    <link rel="stylesheet" href="{{ asset('templates/vuexy/') }}/assets/vendor/libs/sweetalert2/sweetalert2.css" />
+
     <link rel="stylesheet"
         href="{{ asset('templates/vuexy/') }}/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
     <link rel="stylesheet"
@@ -97,8 +98,8 @@
                 <div class="app-brand demo">
                     <a href="{{ url('/') }}" class="app-brand-link d-flex align-items-center">
                         <span class="app-brand-logo demo">
-                            <img src="{{ asset('templates/sash/images/logo.png') }}" alt="Logo Kemenkumham DIY"
-                                width="40" height="40" class="img-fluid rounded-circle">
+                            <img src="{{ asset('templates/sash/images/logo.png') }}" alt="Logo Kemenkum DIY"
+                                width="40" height="40" class="img-fluid ">
                         </span>
                         <span class="app-brand-text demo menu-text fw-bold ms-3">
                             Kemenkum DIY
@@ -118,7 +119,7 @@
                     <li class="menu-item {{ request()->is('dashboard*') ? 'active' : '' }}">
                         <a href="{{ route('dashboard.index') }}" class="menu-link">
                             <i class="menu-icon icon-base ti tabler-smart-home"></i>
-                            <div >Dashboard</div>
+                            <div>Dashboard</div>
                         </a>
                     </li>
                     <li class="menu-item {{ request()->is('call*') ? 'active' : '' }}">
@@ -190,8 +191,8 @@
                     <div class="navbar-nav-right d-flex align-items-center justify-content-end" id="navbar-collapse">
                         <div class="navbar-nav align-items-center">
                             <div class="nav-item dropdown me-2 me-xl-0">
-                                <a class="nav-link dropdown-toggle hide-arrow" id="nav-theme" href="javascript:void(0);"
-                                    data-bs-toggle="dropdown">
+                                <a class="nav-link dropdown-toggle hide-arrow" id="nav-theme"
+                                    href="javascript:void(0);" data-bs-toggle="dropdown">
                                     <i class="icon-base ti tabler-sun icon-md theme-icon-active"></i>
                                     <span class="d-none ms-2" id="nav-theme-text">Toggle theme</span>
                                 </a>
@@ -226,13 +227,9 @@
                             <li class="nav-item navbar-dropdown dropdown-user dropdown">
                                 <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);"
                                     data-bs-toggle="dropdown">
-                                    <div class="avatar avatar-online">
-                                        <div class="avatar-wrapper">
-                                            <div class="avatar avatar-sm me-4"><span
-                                                    class="avatar-initial rounded-circle bg-label-warning">{{ $initials }}
-                                                </span>
-                                            </div>
-                                        </div>
+                                    <div class="avatar avatar-l">
+                                        <span
+                                            class="avatar-initial rounded-circle bg-primary">{{ $initials }}</span>
                                     </div>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
@@ -240,12 +237,9 @@
                                         <a class="dropdown-item" href="#">
                                             <div class="d-flex">
                                                 <div class="flex-shrink-0 me-3">
-                                                    <div class="avatar avatar-online">
-                                                        <div class="avatar-wrapper">
-                                                            <div class="avatar avatar-sm me-4"><span
-                                                                    class="avatar-initial rounded-circle bg-label-warning">{{ $initials }}</span>
-                                                            </div>
-                                                        </div>
+                                                    <div class="avatar avatar-l">
+                                                        <span
+                                                            class="avatar-initial rounded-circle bg-primary">{{ $initials }}</span>
                                                     </div>
                                                 </div>
                                                 <div class="flex-grow-1">
@@ -351,7 +345,6 @@
 
     <script src="{{ asset('templates/vuexy/') }}/assets/vendor/js/menu.js"></script>
 
-
     <!-- Vendors JS -->
     <script src="{{ asset('templates/vuexy/') }}/assets/vendor/libs/select2/select2.js"></script>
     <script src="{{ asset('templates/vuexy/') }}/assets/vendor/libs/tagify/tagify.js"></script>
@@ -363,6 +356,8 @@
     <!-- Main JS -->
     <script src="{{ asset('templates/vuexy/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js') }}"></script>
     {{-- <script src="{{ asset('templates/vuexy/') }}/assets/js/tables-datatables-basic.js"></script> --}}
+    <script src="{{ asset('templates/vuexy/') }}/assets/js/extended-ui-sweetalert2.js"></script>
+    <script src="{{ asset('templates/vuexy/') }}/assets/vendor/libs/sweetalert2/sweetalert2.js"></script>
 
     <script src="{{ asset('templates/vuexy/') }}/assets/js/main.js"></script>
     <script>

@@ -150,6 +150,22 @@
                                                 placeholder="Masukkan Nomor HP / WhatsApp" required />
                                         </div>
                                         <div class="mb-3 form">
+                                            <label for="priority_category" class="form-label">Kategori
+                                                Prioritas</label>
+                                            <select class="form-select select2" id="priority_category"
+                                                name="priority_category_id" required>
+                                                @foreach ($priorityCategories as $category)
+                                                    <option value="{{ $category->id }}"
+                                                        data-level="{{ $category->priority_level }}"
+                                                        {{ $category->id == 1 ? 'selected' : '' }}>
+                                                        {{ $category->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <small class="form-text text-muted">Pilih jika Anda termasuk Lansia, Ibu
+                                                Hamil, atau Disabilitas.</small>
+                                        </div>
+                                        <div class="mb-3 form">
                                             <label for="layanan" class="form-label">Layanan</label>
                                             <select class="form-control select2-show-search" name="layanan"
                                                 data-placeholder="Pilih Layanan ..">
@@ -273,7 +289,7 @@
                             $("#alamat").val(data.alamat);
                             $("#no_hp").val(data.no_hp);
                             $(".alert-success").show();
-                        }  
+                        }
 
                         $(".form").show();
                         $(".btn-periksa").hide();
