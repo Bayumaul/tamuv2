@@ -80,7 +80,21 @@
         {{-- Input Tersembunyi --}}
         <input type="hidden" id="loket_id" value="{{ $loketId }}">
         <input type="hidden" id="id_buku_saat_ini" value="0">
+        <div class="container mt-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="text-primary">{{ $namaLoket }}</h1>
 
+                {{-- TOMBOL BARU: DAFTAR MANUAL --}}
+                <button class="btn btn-info btn-lg-action fw-bold" data-bs-toggle="modal"
+                    data-bs-target="#manualRegisterModal">
+                    <i class="fe fe-user-plus me-2"></i> Daftar Kunjungan Langsung
+                </button>
+                {{-- ... (Sisa header dan logout) ... --}}
+            </div>
+            <hr>
+
+            {{-- ... (lanjutan row Dashboard) ... --}}
+        </div>
         <div class="row">
             {{-- 1. KONTROL PANGGILAN (Kolom Kiri) --}}
             <div class="col-md-6">
@@ -143,6 +157,94 @@
             </div>
         </div>
     </div>
+    {{-- START: MODAL INPUT MANUAL / ON-SITE REGISTRATION --}}
+    <div class="modal fade" id="manualRegisterModal" tabindex="-1" aria-labelledby="manualRegisterModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header text-white">
+                    <h5 class="modal-title" id="manualRegisterModalLabel">Pendaftaran Langsung (On-Site)</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+
+                {{-- Form akan POST ke route offlineRegistration Anda --}}
+                <form id="formManualRegistration" method="POST" action="{{ route('offline.registration') }}">
+                    @csrf
+                    <div class="modal-body">
+
+                        {{-- Asumsi Anda memiliki variabel $priorityCategories dan $layanans dari Controller --}}
+
+                        {{-- Input NIK dan Check Data (Opsional, tapi disarankan) --}}
+                        <div class="mb-3">
+                            <label for="manual_nik" class="form-label">NIK (Cek Data)</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="manual_nik" name="nik"
+                                    placeholder="Masukkan NIK" required>
+                                <button class="btn btn-primary" type="button"
+                                    id="checkManualDataBtn">Periksa</button>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="manual_name" class="form-label">Nama Lengkap</label>
+                                    <input type="text" class="form-control" id="manual_name" name="name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="manual_no_hp" class="form-label">No HP/WhatsApp</label>
+                                    <input type="tel" class="form-control" id="manual_no_hp" name="no_hp" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="manual_priority" class="form-label">Kategori Prioritas</label>
+                                    <select class="form-select" id="manual_priority" name="id_priority_category"
+                                        required>
+                                        <option value="">Pilih Prioritas</option>
+                                        @foreach ($priorityCategories as $category)
+                                            <option value="{{ $category->id }}" {{ $category->id == 1 ? 'selected' : '' }}>
+                                                {{ $category->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <input type="hidden" name="kategori_pengunjung" value="1">
+                                    {{-- Default Perorangan --}}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="manual_alamat" class="form-label">Alamat</label>
+                                    <textarea class="form-control" id="manual_alamat" name="alamat" rows="3" required></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="manual_layanan" class="form-label">Layanan yang Dituju</label>
+                                    <select class="form-select" id="manual_layanan" name="layanan" required>
+                                        <option value="">Pilih Jenis Layanan</option>
+                                        {{-- Asumsi $layanans dikirim Controller --}}
+                                        @foreach ($layanans as $layanan)
+                                            <optgroup label="{{ $layanan->nama_layanan }}">
+                                                @foreach ($layanan->details as $detail)
+                                                    <option value="{{ $detail->id_layanan_detail }}">
+                                                        {{ $detail->nama_layanan_detail }}
+                                                    </option>
+                                                @endforeach
+                                            </optgroup>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                        <button type="submit" class="btn btn-primary"><i class="fe fe-send me-2"></i> Daftarkan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {{-- END: MODAL INPUT MANUAL --}}
 @endsection
 
 @push('scripts')
@@ -214,27 +316,34 @@
 
                     let htmlList = '';
                     if (hasWaiting) {
-                        console.log(response.waiting);
-                        $.each(response.waiting, function(index, antrean) {
+    console.log(response.waiting);
+    $.each(response.waiting, function(index, antrean) {
+        
+        const priorityId = antrean.id_priority_category || 1;
+        const priorityData = PRIORITY_MAP[priorityId] || PRIORITY_MAP[1];
+        
+        const categoryName = priorityData.name;
+        const priorityBadgeClass = priorityData.badge;
+        
+        const layananDetailName = antrean.layanan_detail ?
+            antrean.layanan_detail.nama_layanan_detail :
+            'Layanan';
 
-                            // KUNCI: Mengambil ID Kategori yang dikirim Controller
-                            const priorityId = antrean.id_priority_category || 1; // Default ke 1 (Umum)
-                            const priorityData = PRIORITY_MAP[priorityId] || PRIORITY_MAP[1];
+        // --- KUNCI PERBAIKAN: Menetapkan class berdasarkan status_antrean ---
+        let itemClass = '';
+        if (antrean.status_antrean === 'LEWAT') {
+            itemClass = 'bg-warning-light border border-warning'; // Contoh class warning yang lebih terang
+        }
+        // --- AKHIR KUNCI PERBAIKAN ---
 
-                            const categoryName = priorityData.name;
-                            const priorityBadgeClass = priorityData.badge;
-
-                            // Tentukan Layanan Detail dengan Null check (PHP 7.4 safe)
-                            const layananDetailName = antrean.layanan_detail ?
-                                antrean.layanan_detail.nama_layanan_detail :
-                                'Layanan';
-
-                            htmlList += `
-            <li class="list-group-item d-flex justify-content-between align-items-center queue-item">
+        htmlList += `
+            <li class="list-group-item d-flex justify-content-between align-items-center queue-item ${itemClass}">
                 <div class="d-flex align-items-center">
                     <i class="fe fe-users me-3 text-muted"></i>
                     <div>
-                        <span class="d-block text-uppercase text-muted" style="font-size: 0.8rem;">Nomor Antrean</span>
+                        <span class="d-block text-uppercase text-muted" style="font-size: 0.8rem;">
+                            ${antrean.status_antrean === 'LEWAT' ? 'LEWAT DIPANGGIL' : 'NOMOR ANTREAN'} 
+                        </span>
                         <span class="queue-number-large text-primary fw-bold">${antrean.nomor_lengkap}</span>
                     </div>
                 </div>
@@ -253,8 +362,8 @@
                 </div>
             </li>
         `;
-                        });
-                    } else {
+    });
+}else {
                         htmlList =
                             '<li class="list-group-item text-center text-muted py-5"><i class="fe fe-check-circle me-2"></i> Semua antrean telah diproses.</li>';
                     }
@@ -395,6 +504,54 @@
         $(document).ready(function() {
             updateDashboard();
             setInterval(updateDashboard, 5000); // Polling setiap 5 detik
+        });
+    </script>
+    <script>
+        // Asumsi route validatenik sudah didefinisikan
+        const API_VALIDATE_NIK = "{{ route('validatenik') }}";
+        const ID_KATEGORI_PERORANGAN = 1; // Asumsi kategori pengunjung Perorangan
+
+        // 1. Fungsi Cek NIK (Sama seperti di form online/offline)
+        $('#checkManualDataBtn').on('click', function() {
+            const nik = $('#manual_nik').val();
+            if (nik.length !== 16) {
+                Swal.fire('Warning', 'NIK harus 16 digit.', 'warning');
+                return;
+            }
+
+            $.ajax({
+                url: API_VALIDATE_NIK,
+                method: 'GET',
+                data: {
+                    nik: nik,
+                    kategori: ID_KATEGORI_PERORANGAN
+                },
+                success: function(response) {
+                    if (response.status === 'not_found') {
+                        Swal.fire('Info', 'Data NIK tidak ditemukan. Harap isi data diri lengkap.',
+                            'info');
+                        // Biarkan field kosong agar petugas mengisi
+                        $('#manual_name').val('');
+                        $('#manual_no_hp').val('');
+                        $('#manual_alamat').val('');
+                    } else if (response.id_tamu) {
+                        Swal.fire('Success', 'Data ditemukan! Field terisi otomatis.', 'success');
+                        $('#manual_name').val(response.nama);
+                        $('#manual_no_hp').val(response.no_hp);
+                        $('#manual_alamat').val(response.alamat);
+                    }
+                },
+                error: function() {
+                    Swal.fire('Error', 'Gagal cek data server.', 'error');
+                }
+            });
+        });
+
+        // 2. Clear Form saat Modal Tertutup
+        $('#manualRegisterModal').on('hidden.bs.modal', function() {
+            $('#formManualRegistration')[0].reset();
+            // Set kembali priority ke umum (ID 1)
+            $('#manual_priority').val(1);
         });
     </script>
 @endpush

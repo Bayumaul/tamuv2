@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use Log;
 use Carbon\Carbon;
+use App\Models\Layanan;
 use App\Models\DataBukuTamu;
 use App\Models\DisplayQueue;
 use Illuminate\Http\Request;
 use App\Models\LayananDetail;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Models\MasterPriorityCategory;
 
 class DashboardController extends Controller
 {
@@ -93,8 +95,9 @@ class DashboardController extends Controller
     {
         $loketId = loket_user();
         $namaLoket = 'Loket ' . $loketId;
-
-        return view('dashboard.call', compact('loketId', 'namaLoket'));
+        $layanans = Layanan::with('details')->orderBy('id_layanan', 'asc')->get();
+        $priorityCategories = MasterPriorityCategory::where('is_active', true)->get();
+        return view('dashboard.call', compact('loketId', 'namaLoket', 'layanans', 'priorityCategories'));
     }
 
 
@@ -118,6 +121,7 @@ class DashboardController extends Controller
             ->where('id_loket', $loketId)
             ->where('status_antrean', 'MENUNGGU')
             ->orWhere('status_antrean', 'LEWAT')
+            ->orderBy('status_antrean', 'desc')
             ->orderBy('priority_level_snapshot', 'asc')
             ->orderBy('antrian', 'asc')
             ->limit(5)
@@ -142,41 +146,43 @@ class DashboardController extends Controller
 
         DB::beginTransaction();
         try {
-        // 1. CARI & KUNCI ANTREAM BERIKUTNYA (MENUNGGU)
-        // Menggunakan lockForUpdate() untuk mencegah bentrok/perebutan antrean
-        $nextEntry = DataBukuTamu::where('id_loket', $loketId)
-            ->where('status_antrean', 'MENUNGGU')
-            ->where('tanggal', $today)
+            // 1. CARI & KUNCI ANTREAM BERIKUTNYA (MENUNGGU)
+            // Menggunakan lockForUpdate() untuk mencegah bentrok/perebutan antrean
+            $nextEntry = DataBukuTamu::where('id_loket', $loketId)
+                ->where('status_antrean', 'MENUNGGU')
+                ->orWhere('status_antrean', 'LEWAT')
+                ->where('tanggal', $today)
+                ->orderBy('status_antrean', 'desc')
                 ->orderBy('priority_level_snapshot', 'asc')
                 ->orderBy('antrian', 'asc')
-            ->lockForUpdate()
-            ->first();
+                ->lockForUpdate()
+                ->first();
 
-        if (!$nextEntry) {
-            DB::rollBack();
-            return response()->json(['status' => 'no_queue', 'message' => 'Tidak ada antrean menunggu untuk dipanggil.']);
-        }
+            if (!$nextEntry) {
+                DB::rollBack();
+                return response()->json(['status' => 'no_queue', 'message' => 'Tidak ada antrean menunggu untuk dipanggil.']);
+            }
 
-        // 2. UPDATE STATUS ANTREAM menjadi 'DIPANGGIL'
-        $nextEntry->status_antrean = 'DIPANGGIL';
-        // $nextEntry->waktu_panggil = Carbon::now();
-        $nextEntry->save();
+            // 2. UPDATE STATUS ANTREAM menjadi 'DIPANGGIL'
+            $nextEntry->status_antrean = 'DIPANGGIL';
+            // $nextEntry->waktu_panggil = Carbon::now();
+            $nextEntry->save();
 
-        // 3. MASUKKAN ke ANTREAM PANGGILAN PUSAT (display_queue)
-        DisplayQueue::create([
-            'id_buku' => $nextEntry->id_buku,
-            'loket_tujuan' => $loketId,
-            'status_panggil' => 'NEW',
-            'waktu_request' => Carbon::now(),
-        ]);
+            // 3. MASUKKAN ke ANTREAM PANGGILAN PUSAT (display_queue)
+            DisplayQueue::create([
+                'id_buku' => $nextEntry->id_buku,
+                'loket_tujuan' => $loketId,
+                'status_panggil' => 'NEW',
+                'waktu_request' => Carbon::now(),
+            ]);
 
-        DB::commit();
+            DB::commit();
 
-        return response()->json([
-            'status' => 'success',
-            'nomor' => $nextEntry->nomor_lengkap,
-            'id_buku' => $nextEntry->id
-        ]);
+            return response()->json([
+                'status' => 'success',
+                'nomor' => $nextEntry->nomor_lengkap,
+                'id_buku' => $nextEntry->id
+            ]);
         } catch (\Exception $e) {
             DB::rollBack();
             // Log::error("Call Next Gagal: " . $e->getMessage());
