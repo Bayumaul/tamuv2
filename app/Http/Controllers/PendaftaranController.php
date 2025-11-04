@@ -248,15 +248,15 @@ class PendaftaranController extends Controller
             'no_hp' => ['required', 'regex:/^08\d{8,11}$/'],
             'kategori_pengunjung' => 'required',
             'layanan' => 'required|exists:layanan_detail,id_layanan_detail',
-            'id_priority_category' => 'nullable|integer',
+            'priority_category_id' => 'nullable|integer',
         ]);
-
+        // return $request->all();
         DB::beginTransaction();
         try {
             $tanggal = now()->format('Y-m-d');
 
             // KUNCI PERBAIKAN: Menentukan ID Kategori dan Level
-            $priorityCategoryId = $request->input('id_priority_category') ?: 1; // Jika kosong, set ke ID 1 (Umum)
+            $priorityCategoryId = $request->input('priority_category_id') ?: 1; // Jika kosong, set ke ID 1 (Umum)
 
             // Cari data kategori dari master
             $priorityCategory = \App\Models\MasterPriorityCategory::where('id', $priorityCategoryId)->first(['id', 'priority_level']);

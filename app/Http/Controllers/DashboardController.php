@@ -118,6 +118,7 @@ class DashboardController extends Controller
             ->where('id_loket', $loketId)
             ->where('status_antrean', 'MENUNGGU')
             ->orWhere('status_antrean', 'LEWAT')
+            ->orderBy('priority_level_snapshot', 'asc')
             ->orderBy('antrian', 'asc')
             ->limit(5)
             ->get();
@@ -146,7 +147,8 @@ class DashboardController extends Controller
         $nextEntry = DataBukuTamu::where('id_loket', $loketId)
             ->where('status_antrean', 'MENUNGGU')
             ->where('tanggal', $today)
-            ->orderBy('antrian', 'asc')
+                ->orderBy('priority_level_snapshot', 'asc')
+                ->orderBy('antrian', 'asc')
             ->lockForUpdate()
             ->first();
 

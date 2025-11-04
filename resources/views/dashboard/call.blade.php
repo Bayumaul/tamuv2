@@ -156,7 +156,22 @@
         const LOKET_ID = $('#loket_id').val();
 
         // --- 1. FUNGSI PEMBARUAN DASHBOARD (AJAX Polling) ---
-        // --- 1. FUNGSI PEMBARUAN DASHBOARD (AJAX Polling) ---
+        const PRIORITY_MAP = {
+            // ID: { name: 'Nama Kategori', badge: 'bg-color' }
+            2: {
+                name: 'DISABILITAS',
+                badge: 'bg-danger'
+            }, // ID 2 = Prioritas Tertinggi (Merah)
+            3: {
+                name: 'LANSIA/IBU HAMIL',
+                badge: 'bg-info'
+            }, // ID 3 = Prioritas Tinggi (Biru)
+            1: {
+                name: 'UMUM',
+                badge: 'bg-secondary'
+            } // ID 1 = Default/Umum (Abu-abu)
+        };
+
         function updateDashboard() {
             $.ajax({
                 url: API_STATUS,
@@ -201,23 +216,43 @@
                     if (hasWaiting) {
                         console.log(response.waiting);
                         $.each(response.waiting, function(index, antrean) {
+
+                            // KUNCI: Mengambil ID Kategori yang dikirim Controller
+                            const priorityId = antrean.id_priority_category || 1; // Default ke 1 (Umum)
+                            const priorityData = PRIORITY_MAP[priorityId] || PRIORITY_MAP[1];
+
+                            const categoryName = priorityData.name;
+                            const priorityBadgeClass = priorityData.badge;
+
+                            // Tentukan Layanan Detail dengan Null check (PHP 7.4 safe)
+                            const layananDetailName = antrean.layanan_detail ?
+                                antrean.layanan_detail.nama_layanan_detail :
+                                'Layanan';
+
                             htmlList += `
-                                        <li class="list-group-item d-flex justify-content-between align-items-center queue-item">
-                                            <div class="d-flex align-items-center">
-                                                <i class="fe fe-users me-3 text-muted"></i>
-                                                <div>
-                                                    <span class="d-block text-uppercase text-muted" style="font-size: 0.8rem;">Nomor Antrean</span>
-                                                    <span class="queue-number-large">${antrean.nomor_lengkap}</span>
-                                                </div>
-                                            </div>
-                                            <div class="text-end">
-                                                <span class="badge bg-primary-light text-white p-2 fw-bold queue-badge-urutan">
-                                                    Urutan ${index + 1}
-                                                </span>
-                                                <span class="d-block text-muted" style="font-size: 0.75rem;">(${antrean.layanan_detail.nama_layanan_detail || 'Layanan'})</span>
-                                            </div>
-                                        </li>
-                                    `;
+            <li class="list-group-item d-flex justify-content-between align-items-center queue-item">
+                <div class="d-flex align-items-center">
+                    <i class="fe fe-users me-3 text-muted"></i>
+                    <div>
+                        <span class="d-block text-uppercase text-muted" style="font-size: 0.8rem;">Nomor Antrean</span>
+                        <span class="queue-number-large text-primary fw-bold">${antrean.nomor_lengkap}</span>
+                    </div>
+                </div>
+                <div class="text-end">
+                    
+                    {{-- Badge Kategori Prioritas --}}
+                    <span class="badge ${priorityBadgeClass} text-white p-1 mb-1 fw-bold">
+                        ${categoryName}
+                    </span>
+
+                    {{-- Urutan dan Layanan --}}
+                    <span class="d-block text-muted" style="font-size: 0.75rem;">
+                        (${layananDetailName})
+                    </span>
+                    
+                </div>
+            </li>
+        `;
                         });
                     } else {
                         htmlList =
