@@ -186,7 +186,7 @@
                                         <div class="text-center mt-4 form">
                                             <button style="background-color: #002147; color: #fff" type="submit"
                                                 class="btn btn-submit px-4 py-2">
-                                                <i class="fa fa-paper-plane me-2"></i> Daftar Buku Tamu
+                                                <i class="fa fa-paper-plane me-2"></i> Daftar 
                                             </button>
                                         </div>
                                         <div class="btn-periksa text-center mt-4">

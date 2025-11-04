@@ -17,15 +17,15 @@ $lain = 4;
     <meta charset="UTF-8">
     <meta name='viewport' content='width=device-width, initial-scale=1.0, user-scalable=0'>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="Buku Tamu Layanan Kantor Wilayah Kementerian Hukum Daerah Istimewa Yogyakarta">
+    <meta name="description" content="Antrean Layanan Kantor Wilayah Kementerian Hukum Daerah Istimewa Yogyakarta">
     <meta name="author" content="Kanwil Kemenkum DIY">
     <meta name="keywords" content="kanwil kemenkum diy, kemenkum, kemenkum diy, kantor wilayah, kementerian hukum">
 
     <!-- OPEN GRAPH (OG) TAGS -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Buku Tamu Elektronik - Kanwil Kemenkum DIY" />
+    <meta property="og:title" content="Antrean Elektronik - Kanwil Kemenkum DIY" />
     <meta property="og:description"
-        content="Sistem Buku Tamu dan Antrian Elektronik Kantor Wilayah Kementerian Hukum Daerah Istimewa Yogyakarta" />
+        content="Sistem Antrean dan Antrian Elektronik Kantor Wilayah Kementerian Hukum Daerah Istimewa Yogyakarta" />
     <meta property="og:image" content="https://kemenkumjogja.id/img.png" />
     <meta property="og:url" content="https://kemenkumjogja.id" />
     <meta property="og:site_name" content="KemenkumJogja.ID" />
@@ -33,7 +33,7 @@ $lain = 4;
     <!-- FAVICON -->
     <link rel="shortcut icon" type="image/x-icon" href="{{ asset('templates/sash/') }}/images/logo.png" />
     <!-- TITLE -->
-    <title>Buku Tamu Layanan Kanwil Kementrian Hukum DIY</title>
+    <title>Antrean Layanan Kanwil Kementrian Hukum DIY</title>
 
     <!-- BOOTSTRAP CSS -->
     <link id="style" href="{{ asset('templates/sash/') }}/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -132,7 +132,7 @@ $lain = 4;
                         <div class="row">
                             <div class="col-xl-6 col-lg-6 mb-5 pb-5 animation-zidex pos-relative">
                                 <h4 class="fw-semibold mt-7"></h4>
-                                <h2 class="text-start fw-bold">SELAMAT DATANG DI BUKU TAMU KANTOR WILAYAH KEMENTERIAN
+                                <h2 class="text-start fw-bold">SELAMAT DATANG DI Antrean KANTOR WILAYAH KEMENTERIAN
                                     HUKUM D.I YOGYAKARTA <span class="text-primary animate-heading"></span></h2>
                                 <p class="pb-3 mb-3"> Sistem pendaftaran kunjungan digital yang cepat, dan mudah
                                     digunakan. Daftarkan kunjungan Anda secara online untuk pengalaman yang lebih
@@ -331,7 +331,7 @@ $lain = 4;
                                     <div class="row">
                                         <h4 class="text-center fw-semibold">Features</h4>
                                         <span class="landing-title"></span>
-                                        <h2 class="fw-semibold text-center">Mengapa Menggunakan Buku Tamu? </h2>
+                                        <h2 class="fw-semibold text-center">Mengapa Menggunakan Antrean? </h2>
                                         <p class="text-default mb-5 text-center">Sistem modern yang mengutamakan
                                             keamanan, efisiensi, dan kemudahan akses untuk semua pengunjung .</p>
                                         <div class="row">
@@ -436,7 +436,7 @@ $lain = 4;
                             <section class="py-5 bg-light">
                                 <div class="container">
                                     <div class="text-center mb-5">
-                                        <h2 class="fw-bold text-dark">Cara Menggunakan Buku Tamu</h2>
+                                        <h2 class="fw-bold text-dark">Cara Menggunakan Antrean</h2>
                                         <p class="text-muted">Proses pendaftaran yang sederhana dalam 3 langkah mudah
                                         </p>
                                     </div>
