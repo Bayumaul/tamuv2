@@ -132,7 +132,7 @@ $lain = 4;
                         <div class="row">
                             <div class="col-xl-6 col-lg-6 mb-5 pb-5 animation-zidex pos-relative">
                                 <h4 class="fw-semibold mt-7"></h4>
-                                <h2 class="text-start fw-bold">SELAMAT DATANG DI Antrean KANTOR WILAYAH KEMENTERIAN
+                                <h2 class="text-start fw-bold">SELAMAT DATANG DI ANTREAN KANTOR WILAYAH KEMENTERIAN
                                     HUKUM D.I YOGYAKARTA <span class="text-primary animate-heading"></span></h2>
                                 <p class="pb-3 mb-3"> Sistem pendaftaran kunjungan digital yang cepat, dan mudah
                                     digunakan. Daftarkan kunjungan Anda secara online untuk pengalaman yang lebih
