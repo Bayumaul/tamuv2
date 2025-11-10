@@ -93,7 +93,7 @@
                                             Kanwil Kementrian Hukum DIY
                                         </h4>
                                     </div>
-                                    <div class="alert alert-success alert-dismissible fade show " role="alert">
+                                    {{-- <div class="alert alert-success alert-dismissible fade show " role="alert">
                                         <span class="alert-inner--icon"><i class="fe fe-thumbs-up"></i></span>
                                         <span class="alert-inner--text"><strong> Data Ditemukan!</strong> Silahkan Pilih
                                             Layanan!</span>
@@ -110,7 +110,7 @@
                                             aria-label="Close">
                                             <span aria-hidden="true">×</span>
                                         </button>
-                                    </div>
+                                    </div> --}}
                                     <form action="{{ route('offline.registration') }}" method="POST"
                                         onsubmit="return validateForm()">
                                         @csrf
@@ -129,21 +129,21 @@
                                                 </label>
                                             </div>
                                         </div>
-                                        <div class="mb-3">
+                                        {{-- <div class="mb-3">
                                             <label for="nik" class="form-label">NIK</label>
                                             <input type="number" class="form-control" id="nik" name="nik"
                                                 placeholder="Masukkan NIK" required />
-                                        </div>
+                                        </div> --}}
                                         <div class="mb-3 form">
                                             <label for="name" class="form-label">Nama Lengkap</label>
                                             <input type="text" class="form-control" id="name" name="name"
                                                 placeholder="Masukkan Nama Lengkap" required />
                                         </div>
-                                        <div class="mb-3 form">
+                                        {{-- <div class="mb-3 form">
                                             <label for="alamat" class="form-label">Alamat</label>
                                             <textarea class="form-control" id="alamat" name="alamat" rows="3" placeholder="Masukkan Alamat Lengkap"
                                                 required></textarea>
-                                        </div>
+                                        </div> --}}
                                         <div class="mb-3 form">
                                             <label for="no_hp" class="form-label">No Handphone / WhatsApp</label>
                                             <input type="tel" class="form-control" id="no_hp" name="no_hp"
@@ -189,13 +189,13 @@
                                                 <i class="fa fa-paper-plane me-2"></i> Daftar 
                                             </button>
                                         </div>
-                                        <div class="btn-periksa text-center mt-4">
+                                        {{-- <div class="btn-periksa text-center mt-4">
                                             <button style="background-color: #002147; color: #fff" type="button"
                                                 onclick="checkData()" id="check"
                                                 class="btn btn-submit px-4 py-2">
                                                 <i class="fa bi-info-circle me-2"></i> Periksa Data
                                             </button>
-                                        </div>
+                                        </div> --}}
                                     </form>
                                 </div>
                             </div>
@@ -244,9 +244,9 @@
     <script src="{{ asset('templates/sash/') }}/plugins/sweet-alert/sweetalert.min.js"></script>
     <script src="{{ asset('templates/sash/') }}/js/sweet-alert.js"></script>
     <script>
-        $(".form").hide();
-        $(".alert-success").hide();
-        $(".alert-info").hide();
+        // $(".form").hide();
+        // $(".alert-success").hide();
+        // $(".alert-info").hide();
 
         function checkData() {
             const nik = document.getElementById('nik').value.trim();

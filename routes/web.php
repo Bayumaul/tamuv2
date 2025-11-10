@@ -116,5 +116,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('admin/notif/send', [AdminController::class, 'sendRecapReport'])->name('admin.notif.send');
 });
 
+// Halaman baru untuk input HP saja
+Route::get('/offline-kanwil', [PendaftaranController::class, 'showWAGetLink'])->name('get.wa.link.form');
+Route::post('/send-wa-link', [PendaftaranController::class, 'sendWAGetLink'])->name('send.wa.link.submit');
+
+// Route untuk form pendaftaran detail (yang diakses dari link WA)
+Route::get('/register/detail/{token}', [PendaftaranController::class, 'showDetailForm'])->name('register.detail.form');
+
 // --- 4. FILE AUTH BAWAAN LARAVEL BREEZE ---
 require __DIR__ . '/auth.php';
