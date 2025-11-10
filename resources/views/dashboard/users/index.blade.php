@@ -3,8 +3,6 @@
 @section('content')
     <div class="flex-grow-1 container-p-y container-fluid">
         @include('layouts._alert')
-
-        {{-- Cards Statistik (Contoh, Data harus dihitung di Controller) --}}
         <div class="row g-6 mb-6">
             <div class="col-sm-6 col-xl-3">
                 <div class="card">
@@ -13,8 +11,7 @@
                             <div class="content-left">
                                 <span class="text-heading">Total Petugas</span>
                                 <div class="d-flex align-items-center my-1">
-                                    {{-- Hitung total users dari database --}}
-                                    <h4 class="mb-0 me-2">{{ App\Models\User::count() }}</h4>
+                                    <h4 class="mb-0 me-2">{{ App\Models\User::where('role','petugas')->count() }}</h4>
                                 </div>
                                 <small class="mb-0">Petugas Terdaftar</small>
                             </div>
@@ -27,7 +24,6 @@
                     </div>
                 </div>
             </div>
-            {{-- Card Stat lain dihilangkan atau diganti sesuai kebutuhan --}}
         </div>
 
         <div class="card">

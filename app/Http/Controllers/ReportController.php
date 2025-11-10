@@ -18,7 +18,7 @@ class ReportController extends Controller
     {
         // Data yang dibutuhkan untuk filter di View
         $layananMaster = \App\Models\Layanan::all();
-        $loketMaster = [1 => 'Loket 1', 2 => 'Loket 2', 3 => 'Loket 3', 4 => 'Loket 4'];
+        $loketMaster = [1 => 'Loket 1', 2 => 'Loket 2'];
 
         $SurveyLinks = SurveyLink::where('is_active', true)->get();
 

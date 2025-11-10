@@ -16,16 +16,11 @@ class UserController extends Controller
      */
     public function index()
     {
-        // Ambil data untuk filter: Master Loket (misalnya dari tabel Layanan atau Master Loket)
         $masterLoket = [
-            1 => 'Loket 1 - Admin Hukum',
-            2 => 'Loket 2 - Pendaftaran Merek',
-            3 => 'Loket 3 - Paten/Cipta',
-            4 => 'Loket 4 - Umum/Info'
-        ]; // Ganti dengan query dari database Anda
-        $users = User::all();
-        // Data users akan dimuat oleh AJAX/Datatables, jadi kita hanya kirim master data.
-
+            1 => 'Loket 1 - Kekayaan Intelektual',
+            2 => 'Loket 2 - Administrasi Hukum Umum',
+        ];
+        $users = User::where('role', 'petugas')->get();
         return view('dashboard.users.index', compact('masterLoket', 'users'));
     }
 
@@ -37,11 +32,9 @@ class UserController extends Controller
     public function create()
     {
         $masterLoket = [
-            1 => 'Loket 1 - Admin Hukum',
-            2 => 'Loket 2 - Pendaftaran Merek',
-            3 => 'Loket 3 - Paten/Cipta',
-            4 => 'Loket 4 - Umum/Info'
-        ]; // Ganti dengan query dari database Anda
+            1 => 'Loket 1 - Kekayaan Intelektual',
+            2 => 'Loket 2 - Administrasi Hukum Umum',
+        ];
         return view('dashboard.users.create', compact('masterLoket'));
     }
 
@@ -121,22 +114,20 @@ class UserController extends Controller
     {
         $users = User::all();
 
-        // Logika untuk mengubah id_loket menjadi nama loket yang mudah dibaca
         $masterLoket = [1 => 'Loket 1', 2 => 'Loket 2', 3 => 'Loket 3', 4 => 'Loket 4'];
 
         $data = $users->map(function ($user) use ($masterLoket) {
             return [
                 'user' => $user->name,
                 'email' => $user->email,
-                'role' => 'Petugas Loket', // Role statis untuk contoh ini
+                'role' => $user->role,
                 'loket' => $masterLoket[$user->id_loket] ?? 'Belum Diatur',
-                'status' => 'Active', // Status statis untuk contoh ini
+                'status' => 'Active',
                 'actions' => '<button data-id="' . $user->id . '" class="btn btn-sm btn-icon btn-label-primary edit-user-btn"><i class="ti ti-edit"></i></button>
                               <button data-id="' . $user->id . '" class="btn btn-sm btn-icon btn-label-danger delete-user-btn"><i class="ti ti-trash"></i></button>',
             ];
         });
 
-        // Datatables mengharapkan array ['data' => [ ... ]]
         return response()->json(['data' => $data]);
     }
 }

@@ -284,9 +284,16 @@
 
         // --- FUNGSI 1: MEMUTAR SUARA DARI FILE MP3 ---
         async function playAudioSequence(nomorLengkap, loketTujuan) {
+            console.log(loketTujuan);
             const [prefix, urut] = nomorLengkap.split('-');
             const urutDigits = urut.split('');
-
+            let audioPrefix;
+            if (loketTujuan == 1) {
+                audioPrefix = 'KI'; // Loket 1 --> KI.mp3
+            } else {
+                // Jika bukan 1 (asumsi 2, atau default lainnya) --> AHU.mp3
+                audioPrefix = 'AHU';
+            }
             let audioSequence = [
                 'lonceng.mp3',
                 'nomor_antrean.mp3',
@@ -298,7 +305,7 @@
             });
 
             audioSequence.push('silahkan_ke_loket.mp3');
-            audioSequence.push(`${loketTujuan}.mp3`); // Contoh: 2.mp3
+            audioSequence.push(`${audioPrefix}.mp3`); // Contoh: 2.mp3
 
             isSpeaking = true;
             VIDEO_ELEMENT.volume = VOLUME_DUCKING;
@@ -347,9 +354,10 @@
 
                         // KOREKSI KRITIS: Ubah warna font angka menjadi gelap (Navy/Hitam)
                         $('#currentNumber').removeClass('text-warning text-emas').addClass('text-dark');
-
+                        const namaLoket = data.loket_pemanggil == 1 ? 'KI (Kekayaan Intelektual)' :
+                            'AHU (Admin Hukum Umum)';
                         $('#currentNumber').text(data.nomor_lengkap);
-                        $('#currentLoket').text(`Menuju Loket ${data.loket_pemanggil}`);
+                        $('#currentLoket').text(`Menuju Loket ${namaLoket}`);
                         // 2. Putar Suara (Jalankan fungsi async)
                         playAudioSequence(data.nomor_lengkap, data.loket_pemanggil)
                             .then(() => {

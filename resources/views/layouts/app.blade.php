@@ -122,12 +122,14 @@
                             <div>Dashboard</div>
                         </a>
                     </li>
-                    <li class="menu-item {{ request()->is('call*') ? 'active' : '' }}">
-                        <a href="{{ route('call') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-outbound"></i>
-                            <div>Panggilan Antrian</div>
-                        </a>
-                    </li>
+                    @if (Auth::check() && Auth::user()->role === 'petugas')
+                        <li class="menu-item {{ request()->is('call*') ? 'active' : '' }}">
+                            <a href="{{ route('call') }}" class="menu-link">
+                                <i class="menu-icon icon-base ti tabler-outbound"></i>
+                                <div>Panggilan Antrian</div>
+                            </a>
+                        </li>
+                    @endif
                     <li class="menu-item {{ request()->is('stats*') ? 'active' : '' }}">
                         <a href="{{ route('stats.layanan.index') }}" class="menu-link">
                             <i class="menu-icon icon-base ti tabler-chart-arrows-vertical"></i>
@@ -140,24 +142,29 @@
                             <div>Rekap</div>
                         </a>
                     </li>
-                    <li class="menu-item {{ request()->is('survey*') ? 'active' : '' }}">
-                        <a href="{{ route('survey.index') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-device-imac-search"></i>
-                            <div>Survey</div>
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('admin*') ? 'active' : '' }}">
-                        <a href="{{ route('admin.notif.form') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-notification"></i>
-                            <div>Notifikasi</div>
-                        </a>
-                    </li>
-                    <li class="menu-item {{ request()->is('users*') ? 'active' : '' }}">
-                        <a href="{{ route('users.index') }}" class="menu-link">
-                            <i class="menu-icon icon-base ti tabler-users"></i>
-                            <div>User</div>
-                        </a>
-                    </li>
+                    @if (Auth::check() && Auth::user()->role === 'admin')
+                        <li class="menu-header small text-uppercase">
+                            <span class="menu-header-text">ADMINISTRASI SISTEM</span>
+                        </li>
+                        <li class="menu-item {{ request()->is('survey*') ? 'active' : '' }}">
+                            <a href="{{ route('survey.index') }}" class="menu-link">
+                                <i class="menu-icon icon-base ti tabler-device-imac-search"></i>
+                                <div>Survey</div>
+                            </a>
+                        </li>
+                        <li class="menu-item {{ request()->is('admin*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.notif.form') }}" class="menu-link">
+                                <i class="menu-icon icon-base ti tabler-notification"></i>
+                                <div>Notifikasi</div>
+                            </a>
+                        </li>
+                        <li class="menu-item {{ request()->is('users*') ? 'active' : '' }}">
+                            <a href="{{ route('users.index') }}" class="menu-link">
+                                <i class="menu-icon icon-base ti tabler-users"></i>
+                                <div>User</div>
+                            </a>
+                        </li>
+                    @endif
                     <li class="menu-item">
                         <a href="{{ route('monitor.display') }}" class="menu-link">
                             <i class="menu-icon icon-base ti tabler-screen-share"></i>
@@ -244,7 +251,7 @@
                                                 </div>
                                                 <div class="flex-grow-1">
                                                     <h6 class="mb-0">{{ Auth::user()->username ?? 'Petugas' }}</h6>
-                                                    <small class="text-body-secondary">Petugas</small>
+                                                    <small class="text-body-secondary capitalize">{{ Auth::user()->role ?? 'Petugas' }}</small>
                                                 </div>
                                             </div>
                                         </a>

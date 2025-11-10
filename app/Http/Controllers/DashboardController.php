@@ -109,18 +109,18 @@ class DashboardController extends Controller
     {
         $loketId = loket_user();
         $today = Carbon::today()->toDateString();
-        // 1. Ambil Antrean Sedang DIPANGGIL
         $currentCall = DataBukuTamu::where('tanggal', $today)
             ->where('id_loket', $loketId)
             ->where('status_antrean', 'DIPANGGIL')
             ->orderBy('id_buku', 'desc')
             ->first();
 
-        // 2. Ambil 5 Antrean MENUNGGU Berikutnya
         $waitingList = DataBukuTamu::with('layananDetail')->where('tanggal', $today)
             ->where('id_loket', $loketId)
-            ->where('status_antrean', 'MENUNGGU')
-            ->orWhere('status_antrean', 'LEWAT')
+            ->where(function ($query) {
+                $query->where('status_antrean', 'MENUNGGU')
+                    ->orWhere('status_antrean', 'LEWAT');
+            })
             ->orderBy('status_antrean', 'desc')
             ->orderBy('priority_level_snapshot', 'asc')
             ->orderBy('antrian', 'asc')
@@ -135,10 +135,6 @@ class DashboardController extends Controller
         ]);
     }
 
-    // --- Aksi Panggilan Kritis (Tombol "Panggil Berikutnya") ---
-    /**
-     * Aksi: Memanggil antrean berikutnya dan memasukkannya ke Display Queue.
-     */
     public function callNext(Request $request)
     {
         $loketId = loket_user();
@@ -146,8 +142,6 @@ class DashboardController extends Controller
 
         DB::beginTransaction();
         try {
-            // 1. CARI & KUNCI ANTREAM BERIKUTNYA (MENUNGGU)
-            // Menggunakan lockForUpdate() untuk mencegah bentrok/perebutan antrean
             $nextEntry = DataBukuTamu::where('id_loket', $loketId)
                 ->where('status_antrean', 'MENUNGGU')
                 ->orWhere('status_antrean', 'LEWAT')
@@ -163,9 +157,9 @@ class DashboardController extends Controller
                 return response()->json(['status' => 'no_queue', 'message' => 'Tidak ada antrean menunggu untuk dipanggil.']);
             }
 
-            // 2. UPDATE STATUS ANTREAM menjadi 'DIPANGGIL'
+
             $nextEntry->status_antrean = 'DIPANGGIL';
-            // $nextEntry->waktu_panggil = Carbon::now();
+
             $nextEntry->save();
 
             // 3. MASUKKAN ke ANTREAM PANGGILAN PUSAT (display_queue)

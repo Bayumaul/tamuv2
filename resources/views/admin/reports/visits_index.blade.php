@@ -9,7 +9,6 @@
             <div class="card-header border-bottom">
                 <h5 class="card-title mb-0">Filter Data Kunjungan</h5>
                 <div class="row pt-4">
-                    {{-- Filter Tanggal --}}
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Dari Tanggal</label>
                         <input type="date" id="filter-start-date" class="form-control" />
