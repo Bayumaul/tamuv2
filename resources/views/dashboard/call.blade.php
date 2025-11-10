@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard Petugas - ' . $namaLoket)
+@section('title', 'Dashboard Petugas - ' . $namaLoket == 1 ? 'Kekayaan Intelektual' : 'Administrasi Hukum Umum')
 
 @section('content')
     <style>
@@ -82,7 +82,7 @@
         <input type="hidden" id="id_buku_saat_ini" value="0">
         <div class="container mt-5">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="text-primary">{{ $namaLoket }}</h1>
+                <h1 class="text-primary">{{ $namaLoket == 1 ? 'Kekayaan Intelektual' : 'Administrasi Hukum Umum' }}</h1>
 
                 {{-- TOMBOL BARU: DAFTAR MANUAL --}}
                 <button class="btn btn-info btn-lg-action fw-bold" data-bs-toggle="modal"
@@ -181,8 +181,7 @@
                             <div class="input-group">
                                 <input type="number" class="form-control" id="manual_nik" name="nik"
                                     placeholder="Masukkan NIK" required>
-                                <button class="btn btn-primary" type="button"
-                                    id="checkManualDataBtn">Periksa</button>
+                                <button class="btn btn-primary" type="button" id="checkManualDataBtn">Periksa</button>
                             </div>
                         </div>
 
@@ -316,27 +315,28 @@
 
                     let htmlList = '';
                     if (hasWaiting) {
-    console.log(response.waiting);
-    $.each(response.waiting, function(index, antrean) {
-        
-        const priorityId = antrean.id_priority_category || 1;
-        const priorityData = PRIORITY_MAP[priorityId] || PRIORITY_MAP[1];
-        
-        const categoryName = priorityData.name;
-        const priorityBadgeClass = priorityData.badge;
-        
-        const layananDetailName = antrean.layanan_detail ?
-            antrean.layanan_detail.nama_layanan_detail :
-            'Layanan';
+                        console.log(response.waiting);
+                        $.each(response.waiting, function(index, antrean) {
 
-        // --- KUNCI PERBAIKAN: Menetapkan class berdasarkan status_antrean ---
-        let itemClass = '';
-        if (antrean.status_antrean === 'LEWAT') {
-            itemClass = 'bg-warning-light border border-warning'; // Contoh class warning yang lebih terang
-        }
-        // --- AKHIR KUNCI PERBAIKAN ---
+                            const priorityId = antrean.id_priority_category || 1;
+                            const priorityData = PRIORITY_MAP[priorityId] || PRIORITY_MAP[1];
 
-        htmlList += `
+                            const categoryName = priorityData.name;
+                            const priorityBadgeClass = priorityData.badge;
+
+                            const layananDetailName = antrean.layanan_detail ?
+                                antrean.layanan_detail.nama_layanan_detail :
+                                'Layanan';
+
+                            // --- KUNCI PERBAIKAN: Menetapkan class berdasarkan status_antrean ---
+                            let itemClass = '';
+                            if (antrean.status_antrean === 'LEWAT') {
+                                itemClass =
+                                'bg-warning-light border border-warning'; // Contoh class warning yang lebih terang
+                            }
+                            // --- AKHIR KUNCI PERBAIKAN ---
+
+                            htmlList += `
             <li class="list-group-item d-flex justify-content-between align-items-center queue-item ${itemClass}">
                 <div class="d-flex align-items-center">
                     <i class="fe fe-users me-3 text-muted"></i>
@@ -362,8 +362,8 @@
                 </div>
             </li>
         `;
-    });
-}else {
+                        });
+                    } else {
                         htmlList =
                             '<li class="list-group-item text-center text-muted py-5"><i class="fe fe-check-circle me-2"></i> Semua antrean telah diproses.</li>';
                     }

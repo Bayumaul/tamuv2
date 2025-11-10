@@ -269,7 +269,6 @@ class PendaftaranController extends Controller
             $tamu = DataTamu::create([
                 'nama' => $validated['name'],
                 'no_hp' => $validated['no_hp'],
-                // 'alamat' => $validated['alamat'],
                 'kategori' => $validated['kategori_pengunjung'],
             ]);
 
@@ -281,7 +280,6 @@ class PendaftaranController extends Controller
             $idLayanan = $layananDetail->id_layanan;
             $idLoket = $layananDetail->id_loket_tujuan;
 
-            // 🔹 Hitung nomor antrian hari ini untuk layanan tsb
             $jumlahAntrian = DataBukuTamu::where('tanggal', $tanggal)
                 ->where('id_layanan', $idLayanan)
                 ->count();
@@ -291,7 +289,6 @@ class PendaftaranController extends Controller
             $kodeLayanan = $layananDetail->layanan->kode_layanan;
             $nomorLengkap = $kodeLayanan . '-' . str_pad($antrian, 3, '0', STR_PAD_LEFT);
 
-            // 🔹 Simpan ke data_buku_tamu
             $bukuTamu = DataBukuTamu::create([
                 'id_tamu' => $tamu->id_tamu,
                 'id_layanan_detail' => $layananDetail->id_layanan_detail,
@@ -300,12 +297,11 @@ class PendaftaranController extends Controller
                 'tanggal' => $tanggal,
                 'nomor_lengkap' => $nomorLengkap,
                 'tipe_layanan' => 'Offline',
-                'id_loket' => $idLoket,
+                'id_loket' => $layananDetail->id_layanan == 1 ? 1 : 2,
                 'id_priority_category' => $idPriority,
                 'priority_level_snapshot' => $levelSnapshot,
             ]);
 
-            // 🔹 Ambil data lengkap untuk pesan WA
             $databuku = DataBukuTamu::select(
                 'data_buku_tamu.*',
                 'data_tamu.nama',
@@ -321,12 +317,9 @@ class PendaftaranController extends Controller
                 ->orderByDesc('data_buku_tamu.id_buku')
                 ->first();
 
-            // 🔹 Format nomor HP
             $nomor = $this->formatNomorWA($databuku->no_hp);
 
-            // 🔹 Waktu dan format tanggal
             $waktu = now()->locale('id')->isoFormat('dddd, D MMMM Y HH:mm') . ' WIB';
-
 
             $namaLayananDetail = $validated['layanan'] == 9
                 ? $databuku->layanan_lain
